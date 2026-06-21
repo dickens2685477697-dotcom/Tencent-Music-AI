@@ -1,0 +1,31 @@
+:root {
+  font-family: Inter, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  color-scheme: dark;
+  --brand: #20e676;
+  --brand-strong: #16d865;
+  --brand-soft: rgba(32, 230, 118, 0.14);
+  --bg: #080b0a;
+  --bg-soft: #101614;
+  --surface: rgba(255, 255, 255, 0.075);
+  --surface-strong: rgba(255, 255, 255, 0.11);
+  --line: rgba(255, 255, 255, 0.12);
+  --text: #f5f8f6;
+  --muted: rgba(245, 248, 246, 0.58);
+  --white: #fff;
+  --black: #050706;
+  --danger: #ff6f70;
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-card: 24px;
+  --radius-pill: 999px;
+  --shadow-card: 0 18px 56px rgba(0, 0, 0, 0.35);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --duration-fast: 180ms;
+  --duration-pack: 1250ms;
+}

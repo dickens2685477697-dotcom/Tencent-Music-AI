@@ -1,0 +1,80 @@
+import { allCandidates } from '../data/mockCandidates';
+import type { Relationship, YinxinCardData, YinxinReplyData } from '../types/yinxin';
+
+const CARDS_KEY = 'yinxin.cards.v1';
+const REPLIES_KEY = 'yinxin.replies.v1';
+
+const seedCards: YinxinCardData[] = [
+  { shareId: 'sent_friend', candidateId: allCandidates[0].candidateId, song: allCandidates[0].song, selectedLyric: allCandidates[0].primaryLyric, userMessage: '最近的夜晚总让我想起你，愿你被温柔以待，平安喜乐。', cardStyle: 'midnight', relationship: 'friend', openCount: 5, createdAt: new Date('2026-06-20T20:30:00').getTime() },
+  { shareId: 'sent_lover', candidateId: allCandidates[1].candidateId, song: allCandidates[1].song, selectedLyric: allCandidates[1].primaryLyric, userMessage: '有些想念不用说得太满，这首歌会替我慢慢告诉你。', cardStyle: 'green', relationship: 'lover', openCount: 2, createdAt: new Date('2026-06-15T19:20:00').getTime() },
+  { shareId: 'sent_teacher', candidateId: allCandidates[3].candidateId, song: allCandidates[3].song, selectedLyric: allCandidates[3].primaryLyric, userMessage: '谢谢你曾经给我的鼓励，我一直都记得。', cardStyle: 'minimal', relationship: 'teacher', openCount: 12, createdAt: new Date('2026-06-10T10:10:00').getTime() },
+];
+
+const seedReplies: YinxinReplyData[] = [
+  { replyId: 'seed_reply_1', shareId: 'sent_friend', type: 'message', message: '看到你的信很感动，愿你每天都开心！', source: 'wechat', viewerLabel: '一位收信人', createdAt: new Date('2026-06-21T21:30:00').getTime() },
+  { replyId: 'seed_reply_2', shareId: 'sent_friend', type: 'music', message: '也让这首歌替我回应你。', replyShareId: 'sent_lover', source: 'qq', viewerLabel: '一位收信人', createdAt: new Date('2026-06-21T18:05:00').getTime() },
+  { replyId: 'seed_reply_3', shareId: 'sent_friend', type: 'message', message: '谢谢你的分享！这首歌我也很喜欢。', source: 'qqmusic', viewerLabel: '来自分享链接', createdAt: new Date('2026-06-20T23:16:00').getTime() },
+  { replyId: 'seed_reply_4', shareId: 'sent_teacher', type: 'message', message: '看到你的成长，就是最好的回信。', source: 'link', viewerLabel: '一位收信人', createdAt: new Date('2026-06-18T09:00:00').getTime() },
+];
+
+function readMap<T>(key: string): Record<string, T> {
+  try {
+    return JSON.parse(localStorage.getItem(key) ?? '{}') as Record<string, T>;
+  } catch {
+    return {};
+  }
+}
+
+export function createShareId() {
+  return `yx_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+}
+
+export function saveYinxinCard(card: YinxinCardData) {
+  localStorage.setItem(CARDS_KEY, JSON.stringify({ ...readMap<YinxinCardData>(CARDS_KEY), [card.shareId]: card }));
+}
+
+export function getYinxinCard(shareId: string): YinxinCardData {
+  const stored = readMap<YinxinCardData>(CARDS_KEY)[shareId];
+  if (stored) return stored;
+  const seed = seedCards.find((card) => card.shareId === shareId);
+  if (seed) return seed;
+  const fallback = allCandidates[0];
+  return {
+    shareId,
+    candidateId: fallback.candidateId,
+    song: fallback.song,
+    selectedLyric: fallback.primaryLyric,
+    userMessage: '有些话我没有当面说，就让这首歌替我慢慢告诉你。',
+    aiReason: fallback.aiReason,
+    cardStyle: 'midnight',
+    senderName: '一位朋友',
+    createdAt: Date.now(),
+  };
+}
+
+export function saveReply(reply: YinxinReplyData) {
+  localStorage.setItem(REPLIES_KEY, JSON.stringify({ ...readMap<YinxinReplyData>(REPLIES_KEY), [reply.replyId]: reply }));
+}
+
+export function getReplies(shareId: string) {
+  const stored = Object.values(readMap<YinxinReplyData>(REPLIES_KEY));
+  return [...seedReplies, ...stored].filter((reply) => reply.shareId === shareId);
+}
+
+export function getSentCards(): YinxinCardData[] {
+  const stored = Object.values(readMap<YinxinCardData>(CARDS_KEY));
+  const byId = new Map(seedCards.map((card) => [card.shareId, card]));
+  stored.forEach((card) => byId.set(card.shareId, card));
+  return [...byId.values()].sort((a, b) => b.createdAt - a.createdAt);
+}
+
+export function relationshipLabel(relationship?: Relationship) {
+  const labels: Record<Relationship, string> = { friend: '朋友', lover: '恋人', family: '家人', teacher: '老师', self: '自己', other: '其他' };
+  return relationship ? labels[relationship] : '其他';
+}
+
+export async function copyShareLink(shareId: string) {
+  const url = `${window.location.origin}/s/${shareId}`;
+  if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(url);
+  return url;
+}
