@@ -12,6 +12,26 @@ h1, h2, h3, p, blockquote { margin: 0; }
 .phone-shell::-webkit-scrollbar { display: none; }
 .phone-shell--light { background: #fff; color: #111; }
 .page { min-height: 100%; padding: 0 var(--space-5) calc(24px + env(safe-area-inset-bottom)); background: radial-gradient(circle at 85% -10%, rgba(30, 215, 96, .08), transparent 36%), var(--bg); }
+/* 浅色页面覆盖 */
+.page--light { background: var(--l-bg); color: var(--l-ink); }
+.page--hero { background: var(--l-bg-hero); color: var(--l-ink); padding-top: 0; }
+.page--result { background: var(--l-bg-page); color: var(--l-ink); }
+.page--light .page-header { background: linear-gradient(#fff 78%, transparent); color: var(--l-ink); }
+.page--hero .page-header { background: linear-gradient(#cdedd8 78%, transparent); color: var(--l-ink); }
+.page--result .page-header { background: linear-gradient(#eef6f0 78%, transparent); color: var(--l-ink); }
+.page--light .page-header strong,
+.page--hero .page-header strong,
+.page--result .page-header strong { color: var(--l-ink); }
+.page--light .page-header__action,
+.page--hero .page-header__action,
+.page--result .page-header__action { color: var(--l-sub); }
+.page--light .icon-button,
+.page--hero .icon-button,
+.page--result .icon-button { color: var(--l-ink); }
+.page--light .bottom-action,
+.page--light .bottom-action--solid { background: linear-gradient(transparent, #fff 22%); }
+.page--result .bottom-action,
+.page--result .bottom-action--solid { background: linear-gradient(transparent, #f3f6f4 22%); }
 .page-header { position: sticky; top: 0; z-index: 20; height: 58px; display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; background: linear-gradient(var(--bg) 78%, transparent); }
 .page-header strong { text-align: center; font-size: 16px; font-weight: 600; letter-spacing: .03em; }
 .page-header__action { font-size: 12px; color: var(--muted); text-align: right; }

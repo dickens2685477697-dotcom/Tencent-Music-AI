@@ -1,6 +1,8 @@
 :root {
   font-family: Inter, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   color-scheme: dark;
+
+  /* ── 深色主题（编辑/分享/接收页）── */
   --brand: #20e676;
   --brand-strong: #16d865;
   --brand-soft: rgba(32, 230, 118, 0.14);
@@ -14,6 +16,22 @@
   --white: #fff;
   --black: #050706;
   --danger: #ff6f70;
+
+  /* ── 浅色主题（首页/创作/生成/结果页）── */
+  --l-brand: #21c879;
+  --l-brand-deep: #14b46a;
+  --l-brand-soft: rgba(33, 200, 121, 0.12);
+  --l-brand-glow: 0 12px 28px rgba(33, 200, 121, 0.32);
+  --l-ink: #20262a;
+  --l-sub: #9aa0a6;
+  --l-bg: #ffffff;
+  --l-bg-hero: linear-gradient(168deg, #cdedd8 0%, #dff3e7 38%, #eef8f1 70%, #fbfdfc 100%);
+  --l-bg-page: linear-gradient(180deg, #eef6f0 0%, #f4f7f5 40%, #f3f6f4 100%);
+  --l-surface: #f3f5f6;
+  --l-line: #ebeef0;
+  --l-card-shadow: 0 10px 26px rgba(40, 120, 80, 0.08);
+
+  /* ── 共用 ── */
   --radius-sm: 12px;
   --radius-md: 18px;
   --radius-card: 24px;

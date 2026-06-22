@@ -1,4 +1,10 @@
-interface Option<T extends string> { value: T; label: string }
+import type { ReactNode } from 'react';
+
+interface Option<T extends string> {
+  value: T;
+  label: string;
+  icon?: ReactNode;
+}
 
 export function ChipSelector<T extends string>({
   label,
@@ -23,6 +29,7 @@ export function ChipSelector<T extends string>({
             onClick={() => onChange(option.value)}
             key={option.value}
           >
+            {option.icon && <span className="chip__icon">{option.icon}</span>}
             {option.label}
           </button>
         ))}
