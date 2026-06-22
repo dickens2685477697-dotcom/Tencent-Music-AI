@@ -105,49 +105,35 @@ export function EditYinxinPage() {
         {/* ── 选择歌词片段（iOS 轮盘样式） ── */}
         <section className="edit-section">
           <label className="edit-section__label">选择歌词片段</label>
-          {/* 轮盘窗口：固定高度，内部 track 平移实现居中 */}
+          {/* 轮盘：高亮条随选中项平滑滑动，歌词从顶部开始 */}
           <div className="lyric-wheel">
-            {/* 顶部 / 底部渐变遮罩 */}
-            <div className="lyric-wheel__fade lyric-wheel__fade--top" />
-            <div className="lyric-wheel__fade lyric-wheel__fade--bottom" />
-            {/* 选中区域高亮条 */}
-            <div className="lyric-wheel__bar" />
-            {/* 可平移轨道：translate 使选中项居中 */}
+            {/* 高亮条：跟随选中索引位置 */}
             <div
-              className="lyric-wheel__track"
-              style={{ transform: `translateY(${-selectedIndex * 56}px)` }}
-            >
-              {/* 上方 2 个空白填充，保证第一个选项可以居中 */}
-              <div className="lyric-wheel__item lyric-wheel__item--pad" />
-              <div className="lyric-wheel__item lyric-wheel__item--pad" />
-
-              {lyricOptions.map((lyric, i) => {
-                const dist = Math.abs(i - selectedIndex);
-                const isActive = lyric.segmentId === selectedLyric.segmentId;
-                return (
-                  <button
-                    key={lyric.segmentId}
-                    className={`lyric-wheel__item ${isActive ? 'active' : ''}`}
-                    style={{
-                      opacity: dist === 0 ? 1 : dist === 1 ? 0.52 : 0.22,
-                      fontSize: dist === 0 ? '15px' : dist === 1 ? '14px' : '13px',
-                    }}
-                    onClick={() => { player.reset(); dispatch({ type: 'SET_LYRIC', payload: lyric }); }}
-                  >
-                    {isActive && (
-                      <span className="lyric-wheel__check" aria-hidden>
-                        <Check size={13} strokeWidth={2.8} />
-                      </span>
-                    )}
-                    <span className="lyric-wheel__text">{lyric.text}</span>
-                  </button>
-                );
-              })}
-
-              {/* 下方 2 个空白填充 */}
-              <div className="lyric-wheel__item lyric-wheel__item--pad" />
-              <div className="lyric-wheel__item lyric-wheel__item--pad" />
-            </div>
+              className="lyric-wheel__bar"
+              style={{ top: `${selectedIndex * 56}px` }}
+            />
+            {lyricOptions.map((lyric, i) => {
+              const dist = Math.abs(i - selectedIndex);
+              const isActive = lyric.segmentId === selectedLyric.segmentId;
+              return (
+                <button
+                  key={lyric.segmentId}
+                  className={`lyric-wheel__item ${isActive ? 'active' : ''}`}
+                  style={{
+                    opacity: dist === 0 ? 1 : dist === 1 ? 0.5 : 0.22,
+                    fontSize: dist === 0 ? '15px' : dist === 1 ? '14px' : '13px',
+                  }}
+                  onClick={() => { player.reset(); dispatch({ type: 'SET_LYRIC', payload: lyric }); }}
+                >
+                  {isActive && (
+                    <span className="lyric-wheel__check" aria-hidden>
+                      <Check size={13} strokeWidth={2.8} />
+                    </span>
+                  )}
+                  <span className="lyric-wheel__text">{lyric.text}</span>
+                </button>
+              );
+            })}
           </div>
         </section>
 

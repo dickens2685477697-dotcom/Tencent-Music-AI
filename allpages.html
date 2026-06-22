@@ -1,0 +1,1245 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>音信 · 全页面预览</title>
+  <style>
+    /* ══════════════════════════════════════════
+       全局 & 画廊布局
+    ══════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; }
+    body {
+      background: #111416;
+      font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      color: #fff;
+    }
+
+    /* 顶部标题栏 */
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; gap: 14px;
+      padding: 0 32px; height: 56px;
+      background: rgba(17,20,22,.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .site-header__logo {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: linear-gradient(135deg,#14B46A,#3DD88A);
+      display: grid; place-items: center; color: #fff; flex: none;
+    }
+    .site-header strong { font-size: 16px; font-weight: 700; color: #fff; }
+    .site-header span { font-size: 12px; color: rgba(255,255,255,.4); margin-left: 4px; }
+    .page-count { margin-left: auto; font-size: 12px; color: rgba(255,255,255,.35); }
+
+    /* 画廊 */
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 48px;
+      padding: 48px 32px 80px;
+    }
+
+    /* 设备卡 */
+    .device { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .device__label {
+      padding: 5px 14px;
+      color: rgba(255,255,255,.6);
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 999px; font-size: 11px; letter-spacing: .04em;
+    }
+
+    /* 手机外壳 */
+    .phone-shell {
+      position: relative;
+      width: 390px; height: 844px;
+      overflow: hidden auto;
+      overscroll-behavior: contain;
+      border-radius: 42px;
+      background: #fff;
+      box-shadow: 0 32px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06);
+      scrollbar-width: none;
+    }
+    .phone-shell::-webkit-scrollbar { display: none; }
+
+    /* 灰色占位 */
+    .ph { background: #E6E9EC; display: grid; place-items: center; color: #B0BAC2; }
+    .ph svg { width: 38%; height: 38%; }
+
+    /* ══════════════════════════════════════════
+       共用：状态栏
+    ══════════════════════════════════════════ */
+    .status-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 44px; padding: 0 24px 0 28px;
+      font-size: 15px; font-weight: 600; color: #1A1A1A;
+    }
+    .status-bar--dark { color: #fff; }
+    .status-bar__right { display: flex; align-items: center; gap: 6px; }
+
+    /* ══════════════════════════════════════════
+       共用：浅色页头
+    ══════════════════════════════════════════ */
+    .page-header-bar {
+      display: grid; grid-template-columns: 40px 1fr auto;
+      align-items: center; height: 52px; padding: 0 14px;
+      background: transparent;
+    }
+    .ph-back {
+      width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+      color: #303030;
+    }
+    .ph-title { text-align: center; font-size: 16px; font-weight: 600; color: #242424; }
+    .ph-action { font-size: 13px; color: #21C879; font-weight: 500; }
+
+    /* 品牌色 */
+    :root { --green: #21C879; --green-deep: #14B46A; --green-light: rgba(33,200,121,.1); }
+
+    /* ══════════════════════════════════════════
+       页面 1：QQ音乐首页
+    ══════════════════════════════════════════ */
+    .p1 { background: linear-gradient(180deg,#E6F6F0 0%,#fff 11%); color: #20262A; }
+
+    .p1 .topbar { display:flex; align-items:center; gap:9px; height:42px; padding:0 18px; }
+    .p1 .topbar__logo { width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,#14B46A,#3DD88A); display:grid; place-items:center; color:#fff; flex:none; }
+    .p1 .topbar strong { font-size:20px; font-weight:700; color:#20262A; }
+    .p1 .topbar__app { margin-left:auto; width:36px; height:36px; border-radius:50%; background:rgba(33,200,121,.12); display:grid; place-items:center; color:var(--green-deep); }
+
+    .p1 .search { display:flex; align-items:center; gap:9px; height:44px; margin:10px 18px 16px; padding:0 16px; background:#F2F4F3; border-radius:999px; font-size:13px; color:#9AA0A6; }
+
+    .p1 .hero-title { padding:0 18px 14px; font-size:22px; font-weight:700; color:#20262A; }
+
+    .p1 .shortcuts { display:flex; justify-content:space-between; padding:0 12px 16px; }
+    .p1 .shortcut { display:flex; flex-direction:column; align-items:center; gap:6px; }
+    .p1 .shortcut__icon { width:52px; height:52px; border-radius:16px; background:rgba(33,200,121,.12); display:grid; place-items:center; color:var(--green-deep); }
+    .p1 .shortcut span { font-size:11px; color:#6B7872; }
+    .p1 .live { font-size:9px; font-weight:700; color:var(--green-deep); background:rgba(33,200,121,.18); padding:2px 5px; border-radius:3px; }
+
+    .p1 .feature { position:relative; margin:0 18px 16px; padding:16px 18px; background:linear-gradient(120deg,#1B4D35,#21573C); border-radius:20px; color:#fff; overflow:hidden; }
+    .p1 .feature__title { display:flex; align-items:center; gap:8px; }
+    .p1 .feature__title h2 { font-size:18px; font-weight:700; }
+    .p1 .feature__title em { color:#4DDA9C; font-style:normal; }
+    .p1 .feature > p { margin-top:6px; font-size:12px; line-height:1.7; opacity:.8; }
+    .p1 .feature__btn { margin-top:12px; padding:7px 16px; background:linear-gradient(90deg,#21C879,#3DD88A); border-radius:999px; font-size:13px; font-weight:600; color:#0A2218; border:none; }
+    .p1 .feature__art { position:absolute; right:14px; top:14px; width:72px; height:72px; border-radius:12px; background:rgba(255,255,255,.08); }
+
+    .p1 .sent { display:flex; align-items:center; gap:12px; margin:0 18px 16px; padding:12px 14px; background:#fff; border-radius:16px; border:1px solid rgba(33,200,121,.15); }
+    .p1 .sent__icon { width:40px; height:40px; border-radius:12px; background:rgba(33,200,121,.12); color:var(--green); flex:none; display:grid; place-items:center; }
+    .p1 .sent b { display:block; font-size:14px; color:#191C1F; }
+    .p1 .sent small { font-size:11px; color:#9AA0A6; }
+    .p1 .sent > svg { margin-left:auto; color:#C0C8C4; flex:none; }
+
+    .p1 .reco-head { display:flex; align-items:center; justify-content:space-between; padding:0 18px 10px; }
+    .p1 .reco-head h3 { font-size:15px; font-weight:700; color:#191C1F; }
+    .p1 .reco-head button { font-size:12px; color:#9AA0A6; display:flex; align-items:center; gap:2px; background:none; border:none; }
+
+    .p1 .song { display:flex; align-items:center; gap:12px; padding:8px 18px; }
+    .p1 .song__cover { width:48px; height:48px; border-radius:10px; flex:none; }
+    .p1 .song__meta { flex:1; }
+    .p1 .song__meta b { display:block; font-size:14px; color:#191C1F; }
+    .p1 .song__sub { display:flex; align-items:center; gap:6px; margin-top:2px; }
+    .p1 .song__sub i { font-style:normal; font-size:9px; padding:1px 4px; border:1px solid #9AA0A6; border-radius:3px; color:#9AA0A6; }
+    .p1 .song__sub span { font-size:12px; color:#9AA0A6; }
+    .p1 .song__play { width:32px; height:32px; border-radius:50%; background:rgba(33,200,121,.12); display:grid; place-items:center; color:var(--green); flex:none; }
+    .p1 .song__more { color:#C0C8C4; flex:none; }
+
+    .p1 .tabbar { display:flex; justify-content:space-around; align-items:center; height:72px; border-top:1px solid #F0F4F2; padding:0 4px; background:#fff; }
+    .p1 .tab { display:flex; flex-direction:column; align-items:center; gap:3px; flex:1; color:#9AA0A6; font-size:10px; position:relative; }
+    .p1 .tab--active { color:var(--green); }
+    .p1 .tab__new { position:absolute; top:-4px; right:6px; font-size:7px; font-weight:700; background:#FF4B4B; color:#fff; padding:1px 3px; border-radius:3px; }
+    .p1 .tab__center { width:44px; height:44px; background:linear-gradient(135deg,var(--green-deep),var(--green)); border-radius:50%; display:grid; place-items:center; margin-top:-4px; box-shadow:0 6px 16px rgba(33,200,121,.36); }
+
+    /* ══════════════════════════════════════════
+       页面 2：创建音信
+    ══════════════════════════════════════════ */
+    .p2 { background:#fff; color:#20262A; }
+
+    .p2 .hero {
+      position:relative; height:220px; overflow:hidden;
+      background:linear-gradient(160deg,#CDEBD8 0%,#DFF3E7 40%,#EEF8F1 75%,#FBFDFC 100%);
+    }
+    .p2 .hero__title { padding:52px 20px 0; font-size:20px; font-weight:700; color:#1D2023; }
+    .p2 .hero__q { display:inline-block; margin-top:8px; padding:0 20px; font-size:15px; color:transparent; background:linear-gradient(90deg,#14B46A,#21C879); -webkit-background-clip:text; background-clip:text; font-weight:500; line-height:1.5; }
+    .p2 .hero__note { position:absolute; right:20px; bottom:20px; font-size:36px; color:rgba(33,200,121,.2); }
+
+    .p2 .body { padding:0 16px 100px; }
+
+    .p2 .card { background:#fff; border-radius:20px; border:1px solid #E8ECEA; box-shadow:0 2px 12px rgba(0,109,62,.06); padding:14px; margin-bottom:14px; }
+    .p2 .card__label { font-size:13px; font-weight:700; color:#20262A; margin-bottom:10px; }
+
+    .p2 .chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .p2 .chip { display:flex; align-items:center; gap:5px; padding:7px 13px; border-radius:999px; font-size:13px; color:#5A6660; background:#F0F4F2; border:1.5px solid transparent; }
+    .p2 .chip.active { background:rgba(33,200,121,.12); color:#006D3E; border-color:rgba(33,200,121,.3); }
+    .p2 .chip svg { width:14px; height:14px; }
+
+    .p2 .textarea-wrap { background:#F5F7F6; border-radius:14px; padding:12px 14px; }
+    .p2 .textarea-wrap textarea { width:100%; min-height:80px; background:transparent; border:none; outline:none; font-size:14px; color:#20262A; resize:none; font-family:inherit; }
+    .p2 .textarea-wrap textarea::placeholder { color:#B0BEB9; }
+    .p2 .counter { text-align:right; font-size:11px; color:#B0BEB9; margin-top:4px; }
+
+    .p2 .cta { position:sticky; bottom:0; padding:14px 16px calc(14px + env(safe-area-inset-bottom)); background:linear-gradient(transparent,rgba(255,255,255,.95) 32%); }
+    .p2 .cta__btn { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; height:52px; border-radius:999px; background:linear-gradient(100deg,#14B46A,#3DD88A); box-shadow:0 12px 28px rgba(33,200,121,.32); color:#fff; font-size:16px; font-weight:700; border:none; }
+
+    /* ══════════════════════════════════════════
+       页面 3：AI 匹配中
+    ══════════════════════════════════════════ */
+    .p3 { background:linear-gradient(180deg,#E6F6F0 0%,#fff 14%); }
+
+    .p3 .match-title { padding:16px 20px 0; text-align:center; }
+    .p3 .match-title h1 { font-size:20px; font-weight:700; color:#191C1F; }
+    .p3 .match-title p { font-size:13px; color:#7D8A83; margin-top:4px; }
+
+    .p3 .scene { position:relative; height:340px; display:flex; align-items:center; justify-content:center; }
+
+    /* 脉冲环 */
+    .p3 .ring { position:absolute; border-radius:50%; border:1.5px solid; }
+    .p3 .ring-1 { width:120px; height:120px; border-color:rgba(33,200,121,.35); animation:ring-breathe 3s ease-in-out infinite; }
+    .p3 .ring-2 { width:190px; height:190px; border-color:rgba(33,200,121,.2); animation:ring-breathe 3s ease-in-out infinite .6s; }
+    .p3 .ring-3 { width:265px; height:265px; border-color:rgba(33,200,121,.1); animation:ring-breathe 3s ease-in-out infinite 1.2s; }
+    @keyframes ring-breathe { 0%,100%{transform:scale(1);opacity:.8} 50%{transform:scale(1.04);opacity:1} }
+
+    /* 中心音符 */
+    .p3 .note-center { position:relative; width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,#14B46A,#3DD88A); box-shadow:0 0 0 10px rgba(33,200,121,.12),0 10px 30px rgba(33,200,121,.32); display:grid; place-items:center; color:#fff; z-index:5; animation:note-float 4s ease-in-out infinite; }
+    @keyframes note-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+
+    /* 轨道标签 */
+    .p3 .orbit { position:absolute; width:290px; height:290px; border-radius:50%; animation:orbit-spin 9s linear infinite; }
+    .p3 .orbit-tag { position:absolute; padding:5px 12px; border-radius:999px; background:#fff; border:1px solid rgba(33,200,121,.25); box-shadow:0 3px 12px rgba(0,0,0,.08); font-size:11px; color:#3A5448; font-weight:500; animation:orbit-unspin 9s linear infinite; white-space:nowrap; }
+    .p3 .orbit-tag:nth-child(1) { top:-15px; left:50%; transform:translateX(-50%); }
+    .p3 .orbit-tag:nth-child(2) { right:-30px; top:50%; transform:translateY(-50%); }
+    .p3 .orbit-tag:nth-child(3) { bottom:-15px; left:50%; transform:translateX(-50%); }
+    .p3 .orbit-tag:nth-child(4) { left:-30px; top:50%; transform:translateY(-50%); }
+    @keyframes orbit-spin { to{transform:rotate(360deg)} }
+    @keyframes orbit-unspin { to{transform:rotate(-360deg)} }
+
+    /* 散点 */
+    .p3 .dot { position:absolute; border-radius:50%; background:var(--green); animation:dot-twinkle 2s ease-in-out infinite; }
+    @keyframes dot-twinkle { 0%,100%{opacity:.3;transform:scale(1)} 50%{opacity:1;transform:scale(1.4)} }
+
+    .p3 .match-status { margin:0 20px; padding:16px; background:#fff; border-radius:18px; border:1px solid rgba(33,200,121,.15); box-shadow:0 2px 12px rgba(0,109,62,.06); }
+    .p3 .match-status p { font-size:13px; color:#7D8A83; margin-bottom:8px; }
+    .p3 .progress-track { height:5px; border-radius:999px; background:#DFF0E8; overflow:hidden; }
+    .p3 .progress-fill { height:100%; width:62%; background:linear-gradient(90deg,#14B46A,#3DD88A); border-radius:999px; animation:prog 2s ease-in-out infinite alternate; }
+    @keyframes prog { from{width:52%} to{width:76%} }
+    .p3 .status-steps { display:flex; justify-content:space-between; margin-top:12px; }
+    .p3 .step { display:flex; flex-direction:column; align-items:center; gap:4px; }
+    .p3 .step__dot { width:8px; height:8px; border-radius:50%; background:#DFF0E8; }
+    .p3 .step__dot--done { background:var(--green); }
+    .p3 .step span { font-size:10px; color:#9AA0A6; }
+    .p3 .step span.done { color:var(--green); }
+
+    /* ══════════════════════════════════════════
+       页面 4：选歌结果页
+    ══════════════════════════════════════════ */
+    .p4 { background:#fff url('https://placehold.co/390x844/F4FAF7/F4FAF7') no-repeat center/cover; min-height:100%; }
+    .p4-bg { background:linear-gradient(180deg,#E6F6F0 0%,#F0F8F3 30%,#fff 55%); }
+
+    .p4 .hero { padding:8px 20px 14px; }
+    .p4 .hero h1 { font-size:22px; font-weight:800; color:#191C1F; line-height:1.35; }
+    .p4 .hero h1 em { color:var(--green); font-style:normal; }
+    .p4 .hero p { margin-top:6px; font-size:13px; color:#7D8A83; }
+    .p4 .rematch { display:inline-flex; align-items:center; gap:6px; margin-top:10px; padding:7px 16px; border-radius:999px; border:1px solid var(--green); color:var(--green); font-size:13px; background:transparent; }
+
+    .p4 .cards { display:flex; flex-direction:column; align-items:center; gap:12px; padding:0 0 100px; }
+
+    .p4 .card { width:330px; display:grid; grid-template-columns:130px 1fr; height:148px; background:#fff; border-radius:20px; box-shadow:0 4px 20px rgba(0,0,0,.07); overflow:hidden; }
+    .p4 .card__cover { position:relative; width:130px; height:148px; overflow:hidden; }
+    .p4 .card__cover-img { width:100%; height:100%; background:linear-gradient(135deg,#2D5A3D,#1A3224); }
+    .p4 .card__cover-img.c2 { background:linear-gradient(135deg,#3A4A6B,#1D2540); }
+    .p4 .card__cover-img.c3 { background:linear-gradient(135deg,#5A3A2A,#2A1A10); }
+    .p4 .card__cover-overlay { position:absolute; bottom:0; left:0; right:0; height:50px; background:linear-gradient(transparent,rgba(0,0,0,.65)); display:flex; align-items:flex-end; padding:6px 8px; }
+    .p4 .card__cover-title { color:rgba(255,255,255,.9); font-size:11px; font-style:italic; font-weight:500; }
+    .p4 .card__mini-play { position:absolute; bottom:6px; right:6px; width:24px; height:24px; border-radius:50%; background:rgba(255,255,255,.28); display:grid; place-items:center; color:#fff; }
+    .p4 .card__rank { position:absolute; top:7px; left:7px; width:22px; height:22px; border-radius:50%; background:#21C879; display:grid; place-items:center; font-size:11px; font-weight:700; color:#fff; }
+
+    .p4 .card__body { padding:10px 12px; display:flex; flex-direction:column; gap:4px; }
+    .p4 .card__head { display:flex; align-items:flex-start; justify-content:space-between; gap:6px; }
+    .p4 .card__title { font-size:14px; font-weight:700; color:#191C1F; }
+    .p4 .card__tag { flex:none; padding:3px 8px; border-radius:999px; background:rgba(33,200,121,.12); color:#006D3E; font-size:10px; font-weight:500; }
+    .p4 .card__artist { font-size:11px; color:#9AA0A6; }
+    .p4 .card__lyric { font-size:12px; color:#45504A; line-height:1.55; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; flex:1; }
+    .p4 .card__lyric i { font-size:18px; font-family:Georgia,serif; color:var(--green); vertical-align:-3px; font-style:normal; }
+    .p4 .card__foot { display:flex; align-items:center; justify-content:space-between; margin-top:auto; }
+    .p4 .card__meta { display:flex; align-items:center; gap:4px; font-size:11px; color:#9AA0A6; white-space:nowrap; }
+    .p4 .card__actions { display:flex; align-items:center; gap:6px; }
+    .p4 .card__play { width:26px; height:26px; border-radius:50%; background:var(--green); display:grid; place-items:center; color:#fff; }
+    .p4 .card__more { color:#B0BEB9; font-size:13px; font-weight:700; }
+
+    .p4 .result-note { display:flex; align-items:center; gap:6px; justify-content:center; padding:4px 0 16px; font-size:12px; color:#9AA0A6; }
+
+    .p4 .cta { position:sticky; bottom:0; padding:12px 16px calc(16px + env(safe-area-inset-bottom)); background:linear-gradient(transparent,rgba(255,255,255,.96) 28%); display:flex; gap:10px; }
+    .p4 .cta-ghost { flex:1; height:50px; border-radius:999px; border:1.5px solid var(--green); color:var(--green); background:transparent; font-size:14px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:7px; }
+    .p4 .cta-solid { flex:1; height:50px; border-radius:999px; background:linear-gradient(100deg,#14B46A,#3DD88A); color:#fff; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:7px; box-shadow:0 8px 22px rgba(33,200,121,.3); border:none; }
+
+    /* ══════════════════════════════════════════
+       页面 5：编辑音信
+    ══════════════════════════════════════════ */
+    .p5 { background:linear-gradient(180deg,#E8F6EE 0%,#EEF8F2 30%,#F4FAF7 60%,#F0F8F3 100%); }
+
+    .p5 .music-card { margin:0 16px; background:rgba(255,255,255,.6); border:1px solid rgba(255,255,255,.2); border-radius:22px; box-shadow:0 4px 20px rgba(0,109,62,.12); overflow:hidden; }
+    .p5 .mc-row { display:flex; align-items:flex-end; gap:12px; padding:16px 16px 0; }
+    .p5 .mc-cover { width:116px; height:116px; border-radius:16px; overflow:hidden; flex:none; background:linear-gradient(135deg,#2D5A3D,#1A3224); }
+    .p5 .mc-info { flex:1; padding-bottom:4px; }
+    .p5 .mc-title { font-size:18px; font-weight:600; color:#1D1D1D; }
+    .p5 .mc-artist { font-size:13px; color:#8A8A8A; margin-top:5px; }
+    .p5 .mc-lyric { display:flex; align-items:flex-start; gap:3px; margin-top:10px; }
+    .p5 .mc-q { font-size:38px; font-family:Georgia,serif; line-height:22px; color:var(--green); flex:none; }
+    .p5 .mc-lyric-text { font-size:16px; font-weight:500; line-height:1.4; color:#20262A; }
+    .p5 .mc-player { display:flex; align-items:center; gap:8px; padding:12px 16px 14px; }
+    .p5 .mc-play-btn { width:32px; height:32px; border-radius:50%; background:#ECF7F3; color:var(--green); display:grid; place-items:center; flex:none; }
+    .p5 .mc-waves { flex:1; display:flex; align-items:center; gap:2px; }
+    .p5 .mc-bar { width:3px; border-radius:2px; background:#BBE0D6; }
+    .p5 .mc-bar.a { background:#21C879; }
+    .p5 .mc-time { font-size:10px; color:#9AA0A6; }
+
+    .p5 .edit-section { width:100%; margin-top:12px; padding:0 16px; }
+    .p5 .edit-label { font-size:13px; font-weight:700; color:#20262A; margin-bottom:8px; }
+    .p5 .textarea-box { position:relative; background:#F5F7F6; border-radius:14px; padding:13px 14px 28px; }
+    .p5 .textarea-box p { font-size:14px; color:#45504A; line-height:1.7; }
+    .p5 .textarea-counter { position:absolute; right:12px; bottom:8px; font-size:11px; color:#B0BEB9; }
+
+    .p5 .lyric-wheel { position:relative; height:168px; overflow:hidden; background:#fff; border-radius:14px; border:1px solid #F0F4F2; }
+    .p5 .lw-bar { position:absolute; left:0; right:0; top:0; height:56px; background:rgba(33,200,121,.08); border-radius:10px; border-top:1px solid rgba(33,200,121,.25); border-bottom:1px solid rgba(33,200,121,.25); }
+    .p5 .lw-item { height:56px; display:flex; align-items:center; padding:0 16px; gap:10px; cursor:pointer; }
+    .p5 .lw-item.active { opacity:1; }
+    .p5 .lw-item.dim { opacity:.3; }
+    .p5 .lw-text { font-size:14px; color:#20262A; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .p5 .lw-check { width:20px; height:20px; border-radius:50%; background:var(--green); display:grid; place-items:center; flex:none; }
+
+    .p5 .style-row { display:flex; gap:10px; margin:0 16px; }
+    .p5 .style-opt { flex:1; height:80px; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; border:2px solid transparent; cursor:pointer; font-size:9px; }
+    .p5 .style-opt.s1 { background:#182144; color:#fff; }
+    .p5 .style-opt.s2 { background:#17482D; color:#fff; border-color:var(--green); }
+    .p5 .style-opt.s3 { background:#E6DDCB; color:#201E1A; }
+    .p5 .style-opt i { font-family:serif; font-size:22px; font-style:normal; }
+
+    .p5 .cta { position:sticky; bottom:0; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); background:linear-gradient(transparent,rgba(240,248,243,.96) 32%); }
+    .p5 .cta-btn { display:block; width:100%; height:50px; border-radius:999px; background:linear-gradient(100deg,#14B46A,#3DD88A); box-shadow:0 12px 28px rgba(33,200,121,.32); color:#fff; font-size:16px; font-weight:700; border:none; }
+
+    /* ══════════════════════════════════════════
+       页面 6：分享/打包信封
+    ══════════════════════════════════════════ */
+    .p6 { background:linear-gradient(180deg,#E6F6F0 0%,#fff 14%); }
+
+    .p6 .heading { text-align:center; padding:8px 26px 0; }
+    .p6 .heading h1 { font-size:22px; font-weight:700; color:#191C1F; }
+    .p6 .heading h1 b { color:var(--green); }
+    .p6 .heading p { margin-top:6px; font-size:13px; color:#7D8A83; }
+
+    .p6 .scene { position:relative; height:320px; margin:16px 0 8px; }
+
+    /* 彩屑 */
+    .p6 .cf { position:absolute; border-radius:3px; }
+    .p6 .cf1 { width:12px; height:12px; background:#a8e6c4; top:18px; left:22%; transform:rotate(22deg); }
+    .p6 .cf2 { width:10px; height:10px; background:#7dd9a8; top:12px; right:24%; transform:rotate(-14deg); }
+    .p6 .cf3 { width:18px; height:8px; background:#b8ead0; top:55px; left:10%; transform:rotate(38deg); }
+    .p6 .cf4 { width:8px; height:18px; background:#91ddb4; top:60px; right:12%; transform:rotate(-25deg); }
+
+    /* 信封 */
+    .p6 .envelope { position:absolute; left:50%; bottom:10px; width:270px; height:196px; transform:translateX(-50%); }
+    .p6 .env-back { position:absolute; inset:0; border-radius:16px; background:linear-gradient(160deg,#b8ead0,#c6eeda,#d4f2e2); box-shadow:0 18px 50px rgba(33,200,121,.18); }
+    .p6 .env-fl { position:absolute; left:0; bottom:0; width:50%; height:54%; background:linear-gradient(145deg,#ade3c6,#c3edd6); border-radius:0 0 0 16px; clip-path:polygon(0 0, 100% 100%, 0 100%); z-index:3; }
+    .p6 .env-fr { position:absolute; right:0; bottom:0; width:50%; height:54%; background:linear-gradient(215deg,#ade3c6,#c3edd6); border-radius:0 0 16px 0; clip-path:polygon(0 100%, 100% 0, 100% 100%); z-index:3; }
+    .p6 .env-seal { position:absolute; left:50%; bottom:16px; transform:translateX(-50%); z-index:4; width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#2ad48a,#1ec178); display:grid; place-items:center; color:#fff; box-shadow:0 4px 14px rgba(33,200,121,.36); }
+
+    /* 黑胶唱片 */
+    .p6 .vinyl { position:absolute; left:50%; bottom:100px; transform:translateX(-38%); width:140px; height:140px; border-radius:50%; z-index:2; background:repeating-radial-gradient(circle,#0f1210 0 5px,#1a1f1b 6px 8px,#0c0f0d 9px 11px); box-shadow:0 12px 32px rgba(0,0,0,.38); }
+    .p6 .vinyl::after { content:''; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:36px; height:36px; border-radius:50%; background:radial-gradient(#1c6e42,#0c3820); border:4px solid #0a2b18; }
+
+    /* 音乐信息卡 */
+    .p6 .music-card { position:absolute; left:50%; top:16px; transform:translateX(-46%); z-index:5; width:220px; padding:12px 13px; background:#fff; border-radius:12px; box-shadow:0 12px 30px rgba(40,100,70,.14); display:grid; grid-template-columns:66px 1fr; gap:10px; }
+    .p6 .mc-cover { width:66px; height:66px; border-radius:8px; background:linear-gradient(135deg,#2D5A3D,#1A3224); }
+    .p6 .mc-info b { display:block; font-size:14px; font-weight:700; color:#20262A; }
+    .p6 .mc-info small { display:block; margin-top:2px; font-size:10px; color:#9aa0a6; }
+    .p6 .mc-lyric { margin-top:7px; font-size:11px; line-height:1.55; color:#45504a; }
+
+    /* 打包进度 */
+    .p6 .pack-status { margin:0 26px; text-align:center; }
+    .p6 .pack-status p { font-size:13px; color:#8c9898; margin-bottom:10px; }
+    .p6 .pack-bar { height:5px; border-radius:999px; background:#dceee4; overflow:hidden; }
+    .p6 .pack-bar i { display:block; height:100%; width:62%; background:linear-gradient(90deg,#1ec178,#43d795); border-radius:999px; }
+
+    /* 分享按钮 */
+    .p6 .share-actions { display:grid; grid-template-columns:repeat(4,1fr); margin:12px 20px 0; }
+    .p6 .share-actions button { display:flex; flex-direction:column; align-items:center; gap:7px; color:#6b7872; font-size:11px; background:transparent; border:none; }
+    .p6 .share-actions span { width:44px; height:44px; display:grid; place-items:center; color:#fff; background:var(--green); border-radius:50%; }
+
+    .p6 .cta { padding:20px 22px calc(16px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:12px; }
+    .p6 .btn-solid { height:52px; border-radius:999px; display:flex; align-items:center; justify-content:center; gap:8px; font-size:16px; font-weight:700; color:#fff; background:linear-gradient(100deg,#14B46A,#3DD88A); box-shadow:0 12px 28px rgba(33,200,121,.32); border:none; }
+    .p6 .btn-ghost { height:50px; border-radius:999px; display:flex; align-items:center; justify-content:center; gap:8px; font-size:15px; font-weight:500; color:var(--green); background:#fff; border:1px solid var(--green); }
+
+    /* ══════════════════════════════════════════
+       页面 7：已寄出的音信
+    ══════════════════════════════════════════ */
+    .p7 { background:linear-gradient(180deg,#E6F6F0 0%,#fff 14%); color:#20262A; }
+
+    .p7 .header { display:grid; grid-template-columns:40px 1fr 40px; align-items:center; height:56px; padding:0 12px; }
+    .p7 .header strong { text-align:center; font-size:16px; font-weight:700; color:#191C1F; }
+    .p7 .header-btn { width:36px; height:36px; display:grid; place-items:center; color:#303030; background:transparent; border:none; border-radius:50%; }
+
+    .p7 .filters { display:flex; gap:8px; padding:4px 16px 12px; overflow-x:auto; scrollbar-width:none; }
+    .p7 .filters::-webkit-scrollbar { display:none; }
+    .p7 .filter { flex:none; padding:6px 14px; border-radius:999px; font-size:13px; color:#7D8A83; background:rgba(33,200,121,.08); border:none; white-space:nowrap; }
+    .p7 .filter.active { background:var(--green); color:#fff; font-weight:600; }
+
+    .p7 .list { display:flex; flex-direction:column; gap:10px; padding:0 16px; }
+    .p7 .card { display:grid; grid-template-columns:64px 1fr 20px; gap:12px; align-items:center; padding:12px 14px; background:#fff; border-radius:16px; border:1.5px solid transparent; box-shadow:0 2px 10px rgba(0,0,0,.04); }
+    .p7 .card.active { border-color:var(--green); box-shadow:0 4px 16px rgba(33,200,121,.18); }
+    .p7 .card__cover { width:64px; height:64px; border-radius:12px; flex:none; }
+    .p7 .card__cover.c1 { background:linear-gradient(135deg,#2D5A3D,#1A3224); }
+    .p7 .card__cover.c2 { background:linear-gradient(135deg,#3A4A6B,#1D2540); }
+    .p7 .card__cover.c3 { background:linear-gradient(135deg,#6B3A3A,#3A1A1A); }
+    .p7 .card__body { min-width:0; display:flex; flex-direction:column; gap:3px; }
+    .p7 .card__body small { color:#9AA0A6; font-size:11px; }
+    .p7 .card__body strong { font-size:14px; font-weight:600; color:#191C1F; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .p7 .card__lyric { font-size:12px; color:#6B7872; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .p7 .card__meta { display:flex; gap:8px; margin-top:4px; flex-wrap:wrap; }
+    .p7 .card__meta span { display:flex; align-items:center; gap:3px; font-size:10px; color:#9AA0A6; }
+    .p7 .card__arrow { color:#B8C4BF; }
+
+    .p7 .detail { margin:14px 16px 0; }
+    .p7 .detail-card { background:#fff; border-radius:18px; border:1px solid rgba(33,200,121,.12); box-shadow:0 2px 16px rgba(0,109,62,.06); padding:14px; }
+    .p7 .detail-header { display:flex; justify-content:space-between; margin-bottom:10px; }
+    .p7 .detail-header span { font-size:12px; font-weight:600; color:var(--green); }
+    .p7 .detail-header time { font-size:12px; color:#9AA0A6; }
+    .p7 .detail-main { display:grid; grid-template-columns:72px 1fr; gap:12px; margin-bottom:10px; }
+    .p7 .detail-cover { width:72px; height:72px; border-radius:10px; background:linear-gradient(135deg,#2D5A3D,#1A3224); }
+    .p7 .detail-main h1 { font-size:15px; font-weight:700; color:#191C1F; }
+    .p7 .detail-main p { font-size:12px; color:#7D8A83; margin-top:3px; }
+    .p7 .detail-main blockquote { margin-top:7px; padding:7px 10px; background:rgba(33,200,121,.06); border-left:3px solid var(--green); border-radius:0 8px 8px 0; font-size:12px; color:#455048; line-height:1.7; }
+    .p7 .detail-footer { display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid #F0F4F2; }
+    .p7 .detail-footer-l { display:flex; align-items:center; gap:5px; font-size:12px; color:#9AA0A6; }
+    .p7 .detail-footer-r { display:flex; gap:8px; }
+    .p7 .detail-footer-r button { display:flex; align-items:center; gap:4px; padding:6px 12px; border-radius:999px; font-size:12px; color:var(--green); background:rgba(33,200,121,.1); border:none; }
+
+    .p7 .replies-title { font-size:15px; font-weight:700; color:#191C1F; margin:12px 16px 8px; }
+    .p7 .reply-item { margin:0 16px 10px; background:#fff; border-radius:14px; border:1px solid #EEF2F0; padding:12px; }
+    .p7 .reply-item header { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+    .p7 .reply-item header strong { font-size:13px; color:#191C1F; }
+    .p7 .reply-item header span { flex:1; font-size:11px; color:#9AA0A6; }
+    .p7 .reply-item header time { font-size:11px; color:#B0BEB9; }
+    .p7 .reply-type { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; background:rgba(33,200,121,.1); border-radius:999px; font-size:11px; color:#006D3E; margin-bottom:8px; }
+    .p7 .reply-msg { font-size:13px; color:#455048; line-height:1.7; margin-bottom:8px; }
+    .p7 .reply-btn { height:32px; padding:0 14px; border-radius:999px; font-size:12px; color:var(--green); background:rgba(33,200,121,.1); border:none; }
+
+    /* ══════════════════════════════════════════
+       页面 8：回复音信
+    ══════════════════════════════════════════ */
+    .p8 { background:linear-gradient(180deg,#E6F6F0 0%,#fff 14%); color:#20262A; }
+
+    .p8 .source { display:flex; gap:12px; align-items:center; margin:0 16px; padding:12px 14px; background:#fff; border:1px solid rgba(33,200,121,.18); border-radius:16px; box-shadow:0 2px 12px rgba(0,109,62,.06); }
+    .p8 .source__cover { width:50px; height:50px; border-radius:10px; flex:none; background:linear-gradient(135deg,#2D5A3D,#1A3224); }
+    .p8 .source__info { min-width:0; display:flex; flex-direction:column; gap:4px; }
+    .p8 .source__info small { color:#7D8A83; font-size:11px; }
+    .p8 .source__info strong { font-size:13px; font-weight:600; color:#191C1F; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+    .p8 .inst { margin:18px 16px 10px; font-size:13px; color:#7D8A83; }
+
+    .p8 .types { margin:0 16px; display:flex; flex-direction:column; gap:10px; }
+    .p8 .type-btn { display:grid; grid-template-columns:44px 1fr auto; align-items:center; gap:12px; min-height:72px; padding:12px 14px; background:#fff; border:1.5px solid #E8ECEA; border-radius:16px; text-align:left; cursor:pointer; }
+    .p8 .type-btn.active { border-color:var(--green); background:linear-gradient(90deg,rgba(33,200,121,.06),#fff 70%); }
+    .p8 .type-icon { width:40px; height:40px; display:grid; place-items:center; color:var(--green); background:rgba(33,200,121,.1); border-radius:12px; }
+    .p8 .type-btn strong { display:block; font-size:14px; font-weight:600; color:#191C1F; }
+    .p8 .type-btn small { font-size:12px; color:#9AA0A6; }
+    .p8 .type-check { width:22px; height:22px; display:grid; place-items:center; color:#fff; background:var(--green); border-radius:50%; }
+
+    .p8 .input-section { margin:16px 16px 0; }
+    .p8 .input-label { font-size:13px; font-weight:700; color:#20262A; margin-bottom:8px; }
+    .p8 .textarea-wrap { position:relative; background:#F5F7F6; border-radius:14px; padding:13px 14px 28px; }
+    .p8 .textarea-wrap p { font-size:14px; color:#45504A; line-height:1.7; }
+    .p8 .textarea-counter { position:absolute; right:12px; bottom:8px; font-size:11px; color:#B0BEB9; }
+
+    .p8 .quick { margin:14px 16px 0; }
+    .p8 .quick > span { display:block; font-size:12px; font-weight:600; color:#7D8A83; margin-bottom:8px; }
+    .p8 .quick-chips { display:flex; flex-wrap:wrap; gap:7px; }
+    .p8 .quick-chip { padding:6px 12px; color:#006D3E; background:rgba(33,200,121,.1); border:none; border-radius:999px; font-size:12px; font-weight:500; }
+
+    .p8 .cta { position:sticky; bottom:0; padding:14px 16px calc(14px + env(safe-area-inset-bottom)); background:linear-gradient(transparent,rgba(255,255,255,.95) 32%); }
+    .p8 .cta-btn { display:block; width:100%; height:50px; border-radius:999px; background:linear-gradient(100deg,#14B46A,#3DD88A); box-shadow:0 12px 28px rgba(33,200,121,.32); color:#fff; font-size:16px; font-weight:700; border:none; }
+
+    /* ══════════════════════════════════════════
+       页面 9：收信人视角（暗色）
+    ══════════════════════════════════════════ */
+    .p9 { padding:0 16px 24px; text-align:center; background:radial-gradient(circle at 50% 68%,rgba(208,158,72,.18),transparent 27%),radial-gradient(circle at 50% 15%,rgba(30,215,96,.07),transparent 30%),#070a08; }
+
+    .p9 .heading { padding:52px 0 18px; }
+    .p9 .heading .spark { color:#d8ad62; font-size:20px; }
+    .p9 .heading h1 { margin-top:10px; font-family:"Songti SC",serif; font-size:26px; font-weight:500; color:#F5F0EA; }
+    .p9 .heading p { margin-top:8px; color:rgba(255,255,255,.45); font-size:13px; }
+
+    /* 音信卡片（暗色） */
+    .p9 .music-letter { position:relative; background:linear-gradient(160deg,#1a2f22,#0f1a13); border:1px solid rgba(255,255,255,.1); border-radius:24px; padding:20px; text-align:left; overflow:hidden; }
+    .p9 .music-letter::before { content:''; position:absolute; top:-30px; right:-30px; width:140px; height:140px; border-radius:50%; background:radial-gradient(rgba(33,200,121,.12),transparent); }
+    .p9 .ml-cover { width:100%; height:180px; border-radius:14px; background:linear-gradient(135deg,#2D5A3D,#1A3224); margin-bottom:16px; display:flex; align-items:center; justify-content:center; }
+    .p9 .ml-tag { display:inline-flex; padding:4px 12px; border-radius:999px; background:rgba(33,200,121,.12); color:#52D68A; font-size:11px; font-weight:500; margin-bottom:10px; }
+    .p9 .ml-title { font-size:22px; font-weight:700; color:#F5F0EA; }
+    .p9 .ml-artist { font-size:13px; color:rgba(255,255,255,.45); margin-top:4px; }
+    .p9 .ml-lyric { margin:14px 0; padding:12px 14px; background:rgba(255,255,255,.06); border-radius:12px; font-size:14px; color:rgba(245,240,234,.8); line-height:1.7; }
+    .p9 .ml-lyric i { font-family:Georgia,serif; color:rgba(33,200,121,.6); font-style:normal; font-size:16px; }
+    .p9 .ml-msg { font-size:13px; color:rgba(255,255,255,.6); line-height:1.7; margin-bottom:4px; }
+    .p9 .ml-from { font-size:12px; color:rgba(33,200,121,.7); }
+
+    .p9 .seal { position:absolute; right:16px; bottom:16px; width:42px; height:42px; display:grid; place-items:center; color:#1A2A1E; background:#bd9b5b; border:3px double #725928; border-radius:50%; font-family:"Songti SC",serif; font-size:15px; }
+
+    .p9 .feedback { display:flex; gap:8px; margin:18px 0 14px; }
+    .p9 .fb-btn { flex:1; min-height:50px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; color:rgba(255,255,255,.5); background:rgba(255,255,255,.06); border:1px solid transparent; border-radius:14px; font-size:11px; cursor:pointer; }
+    .p9 .fb-btn.active { color:#21C879; border-color:rgba(33,200,121,.35); background:rgba(33,200,121,.1); }
+
+    .p9 .cta-btn { width:100%; height:52px; border-radius:999px; background:linear-gradient(100deg,#14B46A,#3DD88A); box-shadow:0 12px 28px rgba(33,200,121,.32); color:#fff; font-size:16px; font-weight:700; border:none; }
+    .p9 .ext-link { display:inline-flex; align-items:center; gap:5px; margin-top:14px; color:rgba(255,255,255,.4); font-size:12px; background:none; border:none; }
+
+    /* ══════════════════════════════════════════
+       SVG 工具
+    ══════════════════════════════════════════ */
+    .ico { display:inline-flex; vertical-align:middle; }
+  </style>
+</head>
+<body>
+
+<!-- 顶部标题栏 -->
+<header class="site-header">
+  <div class="site-header__logo">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18V5l9-2v13" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="7" cy="18" r="2" fill="#fff"/><circle cx="16" cy="16" r="2" fill="#fff"/></svg>
+  </div>
+  <strong>音信</strong>
+  <span>全页面预览</span>
+  <span class="page-count">9 个界面</span>
+</header>
+
+<main class="gallery">
+
+  <!-- ════════════════════════════════════════════
+       页面 1：QQ音乐 首页
+  ════════════════════════════════════════════ -->
+  <section class="device">
+    <div class="device__label">01 · QQ音乐 首页</div>
+    <div class="phone-shell p1">
+      <!-- 状态栏 -->
+      <div class="status-bar">
+        <span>9:41</span>
+        <span class="status-bar__right">
+          <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="5" y="4.5" width="3" height="6.5" rx="1"/><rect x="10" y="2" width="3" height="9" rx="1"/><rect x="15" y="0" width="2" height="11" rx="1"/></svg>
+          <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 1.5C5.2 1.5 2.7 2.5.7 4.2l1.4 1.4C3.7 4.2 5.7 3.5 8 3.5s4.3.7 5.9 2.1l1.4-1.4C13.3 2.5 10.8 1.5 8 1.5zm0 4C6 5.5 4.3 6.3 3 7.5l1.4 1.4C5.3 8 6.6 7.5 8 7.5s2.7.5 3.6 1.4L13 7.5C11.7 6.3 10 5.5 8 5.5zM8 9l-1.5 2H9.5L8 9z"/></svg>
+          <svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="2" fill="currentColor"/><path d="M23.5 4c1 .3 1 3.7 0 4V4Z" fill="currentColor" opacity=".4"/></svg>
+        </span>
+      </div>
+
+      <!-- 顶部导航 -->
+      <div class="p1 topbar">
+        <div class="p1 topbar__logo">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18V5l9-2v13" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="7" cy="18" r="2" fill="#fff"/></svg>
+        </div>
+        <strong>QQ音乐</strong>
+        <span class="p1 topbar__app">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 18V6l9-2v12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="7" cy="18" r="2" fill="currentColor"/></svg>
+        </span>
+      </div>
+
+      <!-- 搜索 -->
+      <div class="p1 search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#9AA0A6" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="#9AA0A6" stroke-width="2" stroke-linecap="round"/></svg>
+        搜索歌曲、歌手、歌词
+      </div>
+
+      <div class="p1 hero-title">好音乐，陪着你</div>
+
+      <!-- 快捷入口 -->
+      <div class="p1 shortcuts">
+        <div class="p1 shortcut">
+          <div class="p1 shortcut__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="m12 3 2.6 5.7 6.2.6-4.7 4.1 1.4 6.1L12 16.9 6.5 19.6l1.4-6.1L3.2 9.3l6.2-.6L12 3Z"/></svg></div>
+          <span>推荐</span>
+        </div>
+        <div class="p1 shortcut">
+          <div class="p1 shortcut__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="3" stroke="currentColor" stroke-width="1.7"/><path d="M10 16V9l5-1.2V14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="9" cy="16" r="1.4" fill="currentColor"/><circle cx="15" cy="14" r="1.4" fill="currentColor"/></svg></div>
+          <span>乐馆</span>
+        </div>
+        <div class="p1 shortcut">
+          <div class="p1 shortcut__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="10" width="3" height="9" rx="1"/><rect x="10.5" y="5" width="3" height="14" rx="1"/><rect x="17" y="13" width="3" height="6" rx="1"/></svg></div>
+          <span>排行</span>
+        </div>
+        <div class="p1 shortcut">
+          <div class="p1 shortcut__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><path d="M8 8a6 6 0 0 0 0 8M16 8a6 6 0 0 1 0 8M5 5a10.5 10.5 0 0 0 0 14M19 5a10.5 10.5 0 0 1 0 14"/></svg></div>
+          <span>电台</span>
+        </div>
+        <div class="p1 shortcut">
+          <div class="p1 shortcut__icon"><span class="p1 live">LIVE</span></div>
+          <span>直播</span>
+        </div>
+      </div>
+
+      <!-- 音信特性卡 -->
+      <div class="p1 feature">
+        <div class="p1 feature__title"><h2>音信</h2><em>✦</em></div>
+        <p>把说不出口的话，<br>变成一首歌里的告白</p>
+        <button class="p1 feature__btn">写一封音信 ›</button>
+        <div class="p1 feature__art ph">
+          <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.3"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="m3 9 9 6 9-6"/></svg>
+        </div>
+      </div>
+
+      <!-- 我寄出的音信 -->
+      <div class="p1 sent">
+        <div class="p1 sent__icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="7" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="m4 9 8 5 8-5" stroke="currentColor" stroke-width="1.8"/></svg>
+        </div>
+        <div><b>我寄出的音信</b><small>查看分享链接收到的所有回复</small></div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m9 6 6 6-6 6" stroke="#C0C8C4" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+
+      <!-- 为你推荐 -->
+      <div class="p1 reco-head">
+        <h3>为你推荐</h3>
+        <button>更多 <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+      </div>
+
+      <div class="p1 song">
+        <div class="p1 song__cover ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 17 5-4 4 3 3-2 6 4"/></svg></div>
+        <div class="p1 song__meta"><b>想念拟人化</b><div class="p1 song__sub"><i>HQ</i><span>热妒</span></div></div>
+        <div class="p1 song__play"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div>
+        <svg class="p1 song__more" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+      </div>
+      <div class="p1 song">
+        <div class="p1 song__cover ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 17 5-4 4 3 3-2 6 4"/></svg></div>
+        <div class="p1 song__meta"><b>日落飞行</b><div class="p1 song__sub"><i>HQ</i><span>房东的猫</span></div></div>
+        <div class="p1 song__play"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div>
+        <svg class="p1 song__more" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+      </div>
+      <div class="p1 song">
+        <div class="p1 song__cover ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 17 5-4 4 3 3-2 6 4"/></svg></div>
+        <div class="p1 song__meta"><b>好久不见</b><div class="p1 song__sub"><i>HQ</i><span>陈奕迅</span></div></div>
+        <div class="p1 song__play"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div>
+        <svg class="p1 song__more" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+      </div>
+
+      <!-- 底部 Tab -->
+      <nav class="p1 tabbar">
+        <div class="p1 tab p1 tab--active">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9 18V6l9-2v12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="7" cy="18" r="2" fill="currentColor"/><circle cx="16" cy="16" r="2" fill="currentColor"/></svg>
+          <span>首页</span>
+        </div>
+        <div class="p1 tab">
+          <span class="p1 tab__new">NEW</span>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="4"/><path d="M10 9.5v5l4.5-2.5z" fill="currentColor" stroke="none"/></svg>
+          <span>视频</span>
+        </div>
+        <div class="p1 tab">
+          <div class="p1 tab__center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9 18V5l9-2v13" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="7" cy="18" r="2.2" fill="#fff"/></svg>
+          </div>
+        </div>
+        <div class="p1 tab">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 3v18" stroke-linecap="round"/></svg>
+          <span>歌单</span>
+        </div>
+        <div class="p1 tab">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke-linecap="round"/></svg>
+          <span>我的</span>
+        </div>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════
+       页面 2：创建音信
+  ════════════════════════════════════════════ -->
+  <section class="device">
+    <div class="device__label">02 · 创建音信</div>
+    <div class="phone-shell p2">
+      <div class="status-bar"><span>9:41</span><span class="status-bar__right"><svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3" stroke="#20262A" opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="2" fill="#20262A"/><path d="M23.5 4c1 .3 1 3.7 0 4V4Z" fill="#20262A" opacity=".4"/></svg></span></div>
+
+      <!-- Hero -->
+      <div class="p2 hero">
+        <div class="page-header-bar" style="position:relative;z-index:1;">
+          <div class="ph-back"><svg width="9" height="15" viewBox="0 0 9 15" fill="none"><path d="M7.5 1.5 2 7.5l5.5 6" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <span class="ph-title">创建音信</span>
+          <span></span>
+        </div>
+        <div class="p2 hero__title">用一首歌，替你表达</div>
+        <div class="p2 hero__q">把说不出口的话，变成一首歌里的告白</div>
+        <div class="p2 hero__note">♪</div>
+      </div>
+
+      <div class="p2 body">
+        <!-- 关系 -->
+        <div class="p2 card">
+          <div class="p2 card__label">寄给谁</div>
+          <div class="p2 chips">
+            <div class="p2 chip active">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="1.7"/></svg>
+              恋人
+            </div>
+            <div class="p2 chip">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M21 21v-2a4 4 0 0 0-3-3.87" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+              朋友
+            </div>
+            <div class="p2 chip">家人</div>
+            <div class="p2 chip">老师</div>
+          </div>
+        </div>
+
+        <!-- 场景 -->
+        <div class="p2 card">
+          <div class="p2 card__label">什么情境</div>
+          <div class="p2 chips">
+            <div class="p2 chip active">真诚道歉</div>
+            <div class="p2 chip">感谢心意</div>
+            <div class="p2 chip">久别重逢</div>
+            <div class="p2 chip">告白心意</div>
+          </div>
+        </div>
+
+        <!-- 情绪 -->
+        <div class="p2 card">
+          <div class="p2 card__label">什么情绪</div>
+          <div class="p2 chips">
+            <div class="p2 chip active">温柔诚恳</div>
+            <div class="p2 chip">悲伤低落</div>
+            <div class="p2 chip">轻松开心</div>
+          </div>
+        </div>
+
+        <!-- 想说的话 -->
+        <div class="p2 card">
+          <div class="p2 card__label">想对 TA 说的话</div>
+          <div class="p2 textarea-wrap">
+            <textarea placeholder="比如：我知道我最近让你难过了，有些话一直没说出口…" rows="3"></textarea>
+            <div class="p2 counter">0/80</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="p2 cta">
+        <button class="p2 cta__btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 18V5l9-2v13" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="7" cy="18" r="2" fill="#fff"/></svg>
+          帮我找一首歌
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════
+       页面 3：AI 匹配中
+  ════════════════════════════════════════════ -->
+  <section class="device">
+    <div class="device__label">03 · AI 匹配中</div>
+    <div class="phone-shell p3">
+      <div class="status-bar"><span>9:41</span><span class="status-bar__right"><svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3" stroke="#20262A" opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="2" fill="#20262A"/></svg></span></div>
+
+      <div class="page-header-bar">
+        <div class="ph-back"><svg width="9" height="15" viewBox="0 0 9 15" fill="none"><path d="M7.5 1.5 2 7.5l5.5 6" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <span class="ph-title">音信匹配</span>
+      </div>
+
+      <div class="p3 match-title">
+        <h1>正在为你找到那首歌</h1>
+        <p>AI 正在分析你的情感，寻找最适合的音乐</p>
+      </div>
+
+      <div class="p3 scene">
+        <div class="p3 ring ring-1"></div>
+        <div class="p3 ring ring-2"></div>
+        <div class="p3 ring ring-3"></div>
+        <div class="p3 note-center">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M9 18V5l9-2v13" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="7" cy="18" r="2.2" fill="#fff"/><circle cx="16" cy="16" r="2.2" fill="#fff"/></svg>
+        </div>
+        <div class="p3 orbit">
+          <span class="p3 orbit-tag">🎵 真诚道歉</span>
+          <span class="p3 orbit-tag">💚 温柔诚恳</span>
+          <span class="p3 orbit-tag">🎸 治愈系</span>
+          <span class="p3 orbit-tag">🎧 低声诉说</span>
+        </div>
+        <div class="p3 dot" style="width:6px;height:6px;top:15%;left:18%;animation-delay:.3s"></div>
+        <div class="p3 dot" style="width:5px;height:5px;top:22%;right:22%;animation-delay:.9s"></div>
+        <div class="p3 dot" style="width:7px;height:7px;bottom:25%;left:22%;animation-delay:1.5s"></div>
+        <div class="p3 dot" style="width:5px;height:5px;bottom:20%;right:18%;animation-delay:.6s"></div>
+      </div>
+
+      <div class="p3 match-status">
+        <p>已分析 3 个维度，正在匹配歌曲…</p>
+        <div class="p3 progress-track"><div class="p3 progress-fill"></div></div>
+        <div class="p3 status-steps">
+          <div class="p3 step"><div class="p3 step__dot step__dot--done"></div><span class="done">情感分析</span></div>
+          <div class="p3 step"><div class="p3 step__dot step__dot--done"></div><span class="done">场景匹配</span></div>
+          <div class="p3 step"><div class="p3 step__dot step__dot--done"></div><span class="done">歌词解析</span></div>
+          <div class="p3 step"><div class="p3 step__dot"></div><span>歌曲推荐</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════
+       页面 4：选歌结果页
+  ════════════════════════════════════════════ -->
+  <section class="device">
+    <div class="device__label">04 · 选歌结果</div>
+    <div class="phone-shell p4 p4-bg">
+      <div class="status-bar"><span>9:41</span><span class="status-bar__right"><svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3" stroke="#20262A" opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="2" fill="#20262A"/></svg></span></div>
+
+      <div class="page-header-bar">
+        <div class="ph-back"><svg width="9" height="15" viewBox="0 0 9 15" fill="none"><path d="M7.5 1.5 2 7.5l5.5 6" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <span class="ph-title">音信结果</span>
+      </div>
+
+      <div class="p4 hero">
+        <h1>为你找到 <em>3 封音信</em></h1>
+        <p>每首歌都在等你替它完成一封信</p>
+        <button class="p4 rematch">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 9V5h4M20 15v4h-4M20 9V5h-4M4 15v4h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          再次匹配
+        </button>
+      </div>
+
+      <div class="p4 cards">
+        <!-- 卡片 1 -->
+        <div class="p4 card">
+          <div class="p4 card__cover">
+            <div class="p4 card__cover-img"></div>
+            <div class="p4 card__cover-overlay"><span class="p4 card__cover-title">轻声说抱歉</span></div>
+            <div class="p4 card__mini-play"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div>
+            <div class="p4 card__rank">1</div>
+          </div>
+          <div class="p4 card__body">
+            <div class="p4 card__head">
+              <div><div class="p4 card__title">轻声说抱歉</div><div class="p4 card__artist">白昱铭 · 留白</div></div>
+              <span class="p4 card__tag">真诚道歉</span>
+            </div>
+            <p class="p4 card__lyric"><i>"</i>不是所有道歉，都要说得很响亮<i>"</i></p>
+            <div class="p4 card__foot">
+              <div class="p4 card__meta"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="m4 7 8 5 8-5"/></svg>音信卡片 | 00:30</div>
+              <div class="p4 card__actions"><div class="p4 card__play"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div><span class="p4 card__more">•••</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 卡片 2 -->
+        <div class="p4 card">
+          <div class="p4 card__cover">
+            <div class="p4 card__cover-img c2"></div>
+            <div class="p4 card__cover-overlay"><span class="p4 card__cover-title">森林回声</span></div>
+            <div class="p4 card__mini-play"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div>
+            <div class="p4 card__rank">2</div>
+          </div>
+          <div class="p4 card__body">
+            <div class="p4 card__head">
+              <div><div class="p4 card__title">森林回声</div><div class="p4 card__artist">许乐 · 时光</div></div>
+              <span class="p4 card__tag">安慰鼓励</span>
+            </div>
+            <p class="p4 card__lyric"><i>"</i>别怕被太长，天亮会有新的回声<i>"</i></p>
+            <div class="p4 card__foot">
+              <div class="p4 card__meta"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="m4 7 8 5 8-5"/></svg>音信卡片 | 00:30</div>
+              <div class="p4 card__actions"><div class="p4 card__play"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div><span class="p4 card__more">•••</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 卡片 3 -->
+        <div class="p4 card">
+          <div class="p4 card__cover">
+            <div class="p4 card__cover-img c3"></div>
+            <div class="p4 card__cover-overlay"><span class="p4 card__cover-title">远方的风</span></div>
+            <div class="p4 card__mini-play"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div>
+            <div class="p4 card__rank">3</div>
+          </div>
+          <div class="p4 card__body">
+            <div class="p4 card__head">
+              <div><div class="p4 card__title">远方的风</div><div class="p4 card__artist">隔岸 · 再见以前</div></div>
+              <span class="p4 card__tag">体谅告别</span>
+            </div>
+            <p class="p4 card__lyric"><i>"</i>我们在不同方向，也共享过一段月光<i>"</i></p>
+            <div class="p4 card__foot">
+              <div class="p4 card__meta"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="m4 7 8 5 8-5"/></svg>音信卡片 | 00:30</div>
+              <div class="p4 card__actions"><div class="p4 card__play"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div><span class="p4 card__more">•••</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p4 result-note">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20S4 14.5 4 9a8 8 0 0 1 16 0c0 5.5-8 11-8 11Z"/></svg>
+          希望这些歌曲，能替你说出心里的话
+        </div>
+      </div>
+
+      <div class="p4 cta">
+        <button class="p4 cta-ghost">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 9V5h4M20 15v4h-4M20 9V5h-4M4 15v4h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          换一组
+        </button>
+        <button class="p4 cta-solid">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+          编辑音信
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════
+       页面 5：编辑音信
+  ════════════════════════════════════════════ -->
+  <section class="device">
+    <div class="device__label">05 · 编辑音信</div>
+    <div class="phone-shell p5">
+      <div class="status-bar"><span>9:41</span><span class="status-bar__right"><svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3" stroke="#20262A" opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="2" fill="#20262A"/></svg></span></div>
+
+      <div class="page-header-bar">
+        <div class="ph-back"><svg width="9" height="15" viewBox="0 0 9 15" fill="none"><path d="M7.5 1.5 2 7.5l5.5 6" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <span class="ph-title">编辑音信</span>
+        <span class="ph-action">预览海报</span>
+      </div>
+
+      <!-- 音乐预览卡 -->
+      <div class="p5 music-card">
+        <div class="p5 mc-row">
+          <div class="p5 mc-cover"></div>
+          <div class="p5 mc-info">
+            <div class="p5 mc-title">轻声说抱歉</div>
+            <div class="p5 mc-artist">白昱铭 · 留白</div>
+            <div class="p5 mc-lyric">
+              <span class="p5 mc-q">"</span>
+              <span class="p5 mc-lyric-text">不是所有道歉，<br>都要说得很响亮</span>
+            </div>
+          </div>
+        </div>
+        <div class="p5 mc-player">
+          <div class="p5 mc-play-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div>
+          <span class="p5 mc-time">00:00</span>
+          <div class="p5 mc-waves">
+            <div class="p5 mc-bar a" style="height:8px"></div><div class="p5 mc-bar a" style="height:14px"></div><div class="p5 mc-bar a" style="height:10px"></div><div class="p5 mc-bar a" style="height:18px"></div><div class="p5 mc-bar a" style="height:22px"></div><div class="p5 mc-bar a" style="height:16px"></div><div class="p5 mc-bar a" style="height:12px"></div><div class="p5 mc-bar a" style="height:20px"></div><div class="p5 mc-bar" style="height:24px"></div><div class="p5 mc-bar" style="height:18px"></div><div class="p5 mc-bar" style="height:14px"></div><div class="p5 mc-bar" style="height:20px"></div><div class="p5 mc-bar" style="height:10px"></div><div class="p5 mc-bar" style="height:16px"></div><div class="p5 mc-bar" style="height:8px"></div>
+          </div>
+          <span class="p5 mc-time">00:30</span>
+        </div>
+      </div>
+
+      <!-- 想说的话 -->
+      <div class="p5 edit-section">
+        <div class="p5 edit-label">想对 TA 说的话</div>
+        <div class="p5 textarea-box">
+          <p>有些话我还是说不出口，所以想让《轻声说抱歉》替我说。</p>
+          <span class="p5 textarea-counter">28/80</span>
+        </div>
+      </div>
+
+      <!-- 歌词轮盘 -->
+      <div class="p5 edit-section" style="margin-top:14px;">
+        <div class="p5 edit-label">选择歌词片段</div>
+        <div class="p5 lyric-wheel">
+          <div class="p5 lw-bar"></div>
+          <div class="p5 lw-item active">
+            <span class="p5 lw-text">"不是所有道歉，都要说得很响亮</span>
+            <div class="p5 lw-check"><svg width="11" height="8" viewBox="0 0 11 8" fill="none"><path d="M1 4l2.5 2.5L10 1" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          </div>
+          <div class="p5 lw-item dim">
+            <span class="p5 lw-text">"愿这句迟到的话，能被你好好听见</span>
+          </div>
+          <div class="p5 lw-item dim">
+            <span class="p5 lw-text">"退到很深的夜，换一场温柔相见</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 卡片风格 -->
+      <div class="p5 edit-section" style="margin-top:14px;padding:0;">
+        <div style="padding:0 16px;margin-bottom:8px;" class="p5 edit-label">卡片风格</div>
+        <div class="p5 style-row">
+          <div class="p5 style-opt s1"><i>🌙</i><span>午夜深蓝</span></div>
+          <div class="p5 style-opt s2"><i>🌿</i><span>山野苔绿</span></div>
+          <div class="p5 style-opt s3"><i>☀️</i><span>复古奶油</span></div>
+        </div>
+      </div>
+
+      <div class="p5 cta" style="margin-top:20px;">
+        <button class="p5 cta-btn">确认并生成海报</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════
+       页面 6：分享/打包信封
+  ════════════════════════════════════════════ -->
+  <section class="device">
+    <div class="device__label">06 · 分享音信</div>
+    <div class="phone-shell p6">
+      <div class="status-bar"><span>9:41</span><span class="status-bar__right"><svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3" stroke="#20262A" opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="2" fill="#20262A"/></svg></span></div>
+
+      <div class="page-header-bar">
+        <div class="ph-back"><svg width="9" height="15" viewBox="0 0 9 15" fill="none"><path d="M7.5 1.5 2 7.5l5.5 6" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <span class="ph-title">音信</span>
+      </div>
+
+      <div class="p6 heading">
+        <h1>你的<b>音信</b>已经写好</h1>
+        <p>用音乐，把心意送给 TA</p>
+      </div>
+
+      <div class="p6 scene">
+        <span class="p6 cf cf1"></span><span class="p6 cf cf2"></span><span class="p6 cf cf3"></span><span class="p6 cf cf4"></span>
+        <div class="p6 envelope">
+          <div class="p6 env-back"></div>
+          <div class="p6 env-fl"></div>
+          <div class="p6 env-fr"></div>
+          <div class="p6 env-seal">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 17V6l9-2v11" stroke="#fff" stroke-width="1.8"/><circle cx="6.5" cy="17" r="2" fill="#fff"/><circle cx="15.5" cy="15" r="2" fill="#fff"/></svg>
+          </div>
+        </div>
+        <div class="p6 vinyl"></div>
+        <div class="p6 music-card">
+          <div class="p6 mc-cover"></div>
+          <div class="p6 mc-info">
+            <b>轻声说抱歉</b>
+            <small>白昱铭 · 留白</small>
+            <p class="p6 mc-lyric">"不是所有道歉，都要说得很响亮"</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="p6 share-actions">
+        <button><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/></svg></span>微信好友</button>
+        <button><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></span>QQ 好友</button>
+        <button><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="#fff" stroke-width="1.8"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="#fff" stroke-width="1.8"/></svg></span>复制链接</button>
+        <button><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="13" rx="2" stroke="#fff" stroke-width="1.8"/><path d="m3 9 9 6 9-6" stroke="#fff" stroke-width="1.8"/></svg></span>更多</button>
+      </div>
+
+      <div class="p6 cta">
+        <button class="p6 btn-solid">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="13" rx="2" stroke="#fff" stroke-width="1.8"/><path d="m3 9 9 6 9-6" stroke="#fff" stroke-width="1.8"/></svg>
+          模拟接收者打开
+        </button>
+        <button class="p6 btn-ghost">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          查看我寄出的音信
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════
+       页面 7：已寄出的音信
+  ════════════════════════════════════════════ -->
+  <section class="device">
+    <div class="device__label">07 · 已寄出的音信</div>
+    <div class="phone-shell p7">
+      <div class="status-bar"><span>9:41</span><span class="status-bar__right"><svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3" stroke="#20262A" opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="2" fill="#20262A"/></svg></span></div>
+
+      <div class="p7 header">
+        <button class="p7 header-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+        <strong>我寄出的音信</strong>
+        <button class="p7 header-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="6" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="18" r="1.8"/></svg></button>
+      </div>
+
+      <div class="p7 filters">
+        <div class="p7 filter active">全部</div>
+        <div class="p7 filter">恋人</div>
+        <div class="p7 filter">朋友</div>
+        <div class="p7 filter">家人</div>
+        <div class="p7 filter">老师</div>
+        <div class="p7 filter">其他</div>
+      </div>
+
+      <div class="p7 list">
+        <div class="p7 card active">
+          <div class="p7 card__cover c1"></div>
+          <div class="p7 card__body">
+            <small>寄给恋人</small>
+            <strong>轻声说抱歉</strong>
+            <span class="p7 card__lyric">"不是所有道歉，都要说得很响亮"</span>
+            <div class="p7 card__meta">
+              <span><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>6月18日</span>
+              <span><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="6" height="14" rx="1"/><rect x="14" y="8" width="6" height="10" rx="1"/></svg>打开 3 次</span>
+              <span><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><rect x="4" y="7" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="m4 9 8 5 8-5" stroke="currentColor" stroke-width="1.8"/></svg>1 条回复</span>
+            </div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="m9 6 6 6-6 6" stroke="#B8C4BF" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="p7 card">
+          <div class="p7 card__cover c2"></div>
+          <div class="p7 card__body">
+            <small>寄给朋友</small>
+            <strong>森林回声</strong>
+            <span class="p7 card__lyric">"别怕被太长，天亮会有新的回声"</span>
+            <div class="p7 card__meta">
+              <span>6月12日</span>
+              <span>打开 1 次</span>
+              <span>0 条回复</span>
+            </div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="m9 6 6 6-6 6" stroke="#B8C4BF" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="p7 card">
+          <div class="p7 card__cover c3"></div>
+          <div class="p7 card__body">
+            <small>寄给家人</small>
+            <strong>远方的风</strong>
+            <span class="p7 card__lyric">"我们在不同方向，也共享过一段月光"</span>
+            <div class="p7 card__meta">
+              <span>6月5日</span>
+              <span>打开 5 次</span>
+              <span>2 条回复</span>
+            </div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="m9 6 6 6-6 6" stroke="#B8C4BF" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+
+      <!-- 详情面板 -->
+      <div class="p7 detail">
+        <div class="p7 detail-card">
+          <div class="p7 detail-header">
+            <span>寄给恋人</span><time>6月18日</time>
+          </div>
+          <div class="p7 detail-main">
+            <div class="p7 detail-cover"></div>
+            <div>
+              <h1>轻声说抱歉</h1>
+              <p>歌词：不是所有道歉，都要说得很响亮</p>
+              <blockquote>我想对你说：<br>有些话我一直说不出口</blockquote>
+            </div>
+          </div>
+          <div class="p7 detail-footer">
+            <span class="p7 detail-footer-l"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="6" height="14" rx="1"/><rect x="14" y="8" width="6" height="10" rx="1"/></svg>已打开 3 次</span>
+            <div class="p7 detail-footer-r">
+              <button><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>再次分享</button>
+              <button><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8"/></svg>复制链接</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p7 replies-title">收到的回复（1）</div>
+      <div class="p7 reply-item">
+        <header>
+          <strong>一位收信人</strong>
+          <span class="p7 reply-item header span">通过分享链接打开</span>
+          <time>6月19日</time>
+        </header>
+        <div class="p7 reply-type"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="m3 9 9 6 9-6" stroke="currentColor" stroke-width="1.8"/></svg>直接留言</div>
+        <p class="p7 reply-msg">我听懂了，也谢谢你告诉我。</p>
+        <button class="p7 reply-btn">回复这条留言</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════
+       页面 8：回复音信
+  ════════════════════════════════════════════ -->
+  <section class="device">
+    <div class="device__label">08 · 回复音信</div>
+    <div class="phone-shell p8">
+      <div class="status-bar"><span>9:41</span><span class="status-bar__right"><svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3" stroke="#20262A" opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="2" fill="#20262A"/></svg></span></div>
+
+      <div class="page-header-bar">
+        <div class="ph-back"><svg width="9" height="15" viewBox="0 0 9 15" fill="none"><path d="M7.5 1.5 2 7.5l5.5 6" stroke="#303030" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <span class="ph-title">回一封音信</span>
+      </div>
+
+      <!-- 原始音信 -->
+      <div class="p8 source">
+        <div class="p8 source__cover"></div>
+        <div class="p8 source__info">
+          <small>回复这封音信</small>
+          <strong>"不是所有道歉，都要说得很响亮"</strong>
+        </div>
+      </div>
+
+      <p class="p8 inst">选择一种方式，回应 TA</p>
+
+      <!-- 回复类型 -->
+      <div class="p8 types">
+        <button class="p8 type-btn active">
+          <div class="p8 type-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div>
+          <div><strong>直接留言</strong><small>写几句话回应 TA，不选择音乐</small></div>
+          <div class="p8 type-check"><svg width="12" height="9" viewBox="0 0 12 9" fill="none"><path d="M1 4.5l3 3L11 1" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        </button>
+        <button class="p8 type-btn">
+          <div class="p8 type-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 18V5l9-2v13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="7" cy="18" r="2" fill="currentColor"/><circle cx="16" cy="16" r="2" fill="currentColor"/></svg></div>
+          <div><strong>用音乐回信</strong><small>也让一首歌替你说</small></div>
+        </button>
+      </div>
+
+      <!-- 输入区 -->
+      <div class="p8 input-section">
+        <div class="p8 input-label">想对 TA 说的话</div>
+        <div class="p8 textarea-wrap">
+          <p>我听懂了，也谢谢你愿意告诉我这些话。</p>
+          <span class="p8 textarea-counter">20/200</span>
+        </div>
+      </div>
+
+      <!-- 快捷回复 -->
+      <div class="p8 quick">
+        <span>快捷回复</span>
+        <div class="p8 quick-chips">
+          <div class="p8 quick-chip">我听懂了，也谢谢你告诉我。</div>
+          <div class="p8 quick-chip">其实，我也一直很想你。</div>
+          <div class="p8 quick-chip">找个时间，我们好好聊聊吧。</div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="p8 cta">
+        <button class="p8 cta-btn">发送回复</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════
+       页面 9：收信人视角
+  ════════════════════════════════════════════ -->
+  <section class="device">
+    <div class="device__label">09 · 收信人视角</div>
+    <div class="phone-shell p9">
+      <div class="status-bar status-bar--dark"><span>9:41</span><span class="status-bar__right" style="color:#fff"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx="1"/><rect x="5" y="4.5" width="3" height="6.5" rx="1"/><rect x="10" y="2" width="3" height="9" rx="1"/><rect x="15" y="0" width="2" height="11" rx="1"/></svg></span></div>
+
+      <div class="p9 heading">
+        <div class="p9 heading spark">✦</div>
+        <h1>你收到了一封音信</h1>
+        <p>TA 让一首歌替 TA 说了这些话。</p>
+      </div>
+
+      <!-- 音信卡片 -->
+      <div class="p9 music-letter" style="position:relative;">
+        <div class="p9 ml-cover">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><path d="M9 18V5l9-2v13" stroke="rgba(255,255,255,.4)" stroke-width="1.8" stroke-linecap="round"/><circle cx="7" cy="18" r="2" fill="rgba(255,255,255,.4)"/></svg>
+        </div>
+        <div class="p9 ml-tag">真诚道歉</div>
+        <div class="p9 ml-title">轻声说抱歉</div>
+        <div class="p9 ml-artist">白昱铭 · 留白</div>
+        <div class="p9 ml-lyric"><i>"</i>不是所有道歉，都要说得很响亮<i>"</i></div>
+        <div class="p9 ml-msg">有些话我还是说不出口，所以想让《轻声说抱歉》替我说。</div>
+        <div class="p9 ml-from">From 音信</div>
+        <div class="p9 seal">音</div>
+      </div>
+
+      <!-- 反馈条 -->
+      <div class="p9 feedback">
+        <button class="p9 fb-btn active">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          我听懂了
+        </button>
+        <button class="p9 fb-btn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" stroke="currentColor" stroke-width="1.7"/></svg>
+          有点想回 TA
+        </button>
+        <button class="p9 fb-btn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.7"/></svg>
+          收藏
+        </button>
+      </div>
+
+      <button class="p9 cta-btn">回一封音信</button>
+
+      <button class="p9 ext-link">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        去 QQ音乐听完整首歌
+      </button>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>
