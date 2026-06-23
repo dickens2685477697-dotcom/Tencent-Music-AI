@@ -4,6 +4,7 @@ export type Tone = 'gentle' | 'restrained' | 'sincere' | 'light' | 'poetic';
 export type CardStyle = 'midnight' | 'green' | 'minimal';
 export type ReplyType = 'message' | 'music';
 export type MockScenario = 'success' | 'error' | 'empty';
+export type YinxinMessageType = 'text' | 'voice';
 
 export interface YinxinDraft {
   message: string;
@@ -50,6 +51,9 @@ export interface YinxinCardData {
   song: SongInfo;
   selectedLyric: LyricSegment;
   userMessage: string;
+  messageType?: YinxinMessageType;
+  hideMessageInLyric?: boolean;
+  voiceDuration?: number;
   aiReason?: string;
   cardStyle: CardStyle;
   senderName?: string;

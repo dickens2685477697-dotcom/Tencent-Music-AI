@@ -1,5 +1,5 @@
-import { Check } from 'lucide-react';
-import { useState } from 'react';
+import { Check, LockKeyhole, MessageSquareText, Mic, UnlockKeyhole } from 'lucide-react';
+import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppShell } from '../../components/layout/AppShell';
 import { PageHeader } from '../../components/layout/PageHeader';
@@ -10,7 +10,7 @@ import { YinxinMusicCard } from '../../components/yinxin/YinxinMusicCard';
 import { usePlayer } from '../../context/PlayerContext';
 import { useYinxin } from '../../context/YinxinContext';
 import { createShareId, saveReply, saveYinxinCard } from '../../services/shareStore';
-import type { CardStyle } from '../../types/yinxin';
+import type { CardStyle, LyricSegment, YinxinMessageType } from '../../types/yinxin';
 
 const STYLES: { value: CardStyle; label: string; icon: string }[] = [
   { value: 'midnight', label: '午夜耳语', icon: '☾' },
@@ -20,6 +20,12 @@ const STYLES: { value: CardStyle; label: string; icon: string }[] = [
 
 export function EditYinxinPage() {
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [messageType, setMessageType] = useState<YinxinMessageType>('text');
+  const [isRecordingVoice, setIsRecordingVoice] = useState(false);
+  const [hasVoiceRecording, setHasVoiceRecording] = useState(false);
+  const [voiceTake, setVoiceTake] = useState(0);
+  const [hideMessageInLyric, setHideMessageInLyric] = useState(false);
+  const wheelRef = useRef<HTMLDivElement | null>(null);
   const { selectedCandidate, selectedLyric, cardCopy, cardStyle, draft, dispatch } = useYinxin();
   const player = usePlayer();
   const navigate = useNavigate();
@@ -38,15 +44,59 @@ export function EditYinxinPage() {
 
   const lyricOptions = [selectedCandidate.primaryLyric, ...selectedCandidate.alternativeLyrics];
   const selectedIndex = lyricOptions.findIndex(l => l.segmentId === selectedLyric.segmentId);
+  const safeSelectedIndex = selectedIndex >= 0 ? selectedIndex : 0;
+  const voiceDuration = 30;
+  const canGenerate = messageType === 'text' || hasVoiceRecording;
+
+  useEffect(() => {
+    if (wheelRef.current) wheelRef.current.scrollTop = safeSelectedIndex * 56;
+  }, [safeSelectedIndex]);
+
+  const selectLyric = (lyric: LyricSegment) => {
+    if (lyric.segmentId === selectedLyric.segmentId) return;
+    player.reset();
+    dispatch({ type: 'SET_LYRIC', payload: lyric });
+  };
+
+  const handleLyricScroll = () => {
+    const wheel = wheelRef.current;
+    if (!wheel) return;
+    const nextIndex = Math.max(0, Math.min(lyricOptions.length - 1, Math.round(wheel.scrollTop / 56)));
+    const nextLyric = lyricOptions[nextIndex];
+    if (nextLyric && nextLyric.segmentId !== selectedLyric.segmentId) selectLyric(nextLyric);
+  };
+
+  const startVoiceRecording = (event: PointerEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    player.reset();
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    setIsRecordingVoice(true);
+  };
+
+  const finishVoiceRecording = () => {
+    if (!isRecordingVoice) return;
+    setIsRecordingVoice(false);
+    setHasVoiceRecording(true);
+    setVoiceTake((take) => take + 1);
+  };
+
+  const cancelVoiceRecording = () => {
+    setIsRecordingVoice(false);
+  };
 
   const generate = () => {
+    if (!canGenerate) return;
     const shareId = createShareId();
+    const savedMessageType: YinxinMessageType = messageType === 'voice' && hasVoiceRecording ? 'voice' : 'text';
     saveYinxinCard({
       shareId,
       candidateId: selectedCandidate.candidateId,
       song: selectedCandidate.song,
       selectedLyric,
       userMessage: cardCopy.trim() || selectedCandidate.cardCopy,
+      messageType: savedMessageType,
+      hideMessageInLyric,
+      voiceDuration: savedMessageType === 'voice' ? voiceDuration : undefined,
       aiReason: selectedCandidate.aiReason,
       cardStyle,
       senderName: draft.mode === 'reply' ? '音信的回复者' : '一位朋友',
@@ -91,14 +141,88 @@ export function EditYinxinPage() {
         {/* ── 想对 TA 说的话 ── */}
         <section className="edit-section">
           <label className="edit-section__label">想对 TA 说的话</label>
-          <div className="edit-textarea-wrap">
-            <textarea
-              maxLength={80}
-              value={cardCopy}
-              placeholder="说说你想表达的话…"
-              onChange={(e) => dispatch({ type: 'SET_COPY', payload: e.target.value })}
-            />
-            <span className="edit-textarea-counter">{cardCopy.length}/80</span>
+          <div className="message-mode-tabs" role="tablist" aria-label="选择音信内容类型">
+            <button
+              type="button"
+              className={messageType === 'text' ? 'active' : ''}
+              aria-pressed={messageType === 'text'}
+              onClick={() => setMessageType('text')}
+            >
+              <MessageSquareText size={15} />
+              普通输入
+            </button>
+            <button
+              type="button"
+              className={messageType === 'voice' ? 'active' : ''}
+              aria-pressed={messageType === 'voice'}
+              onClick={() => setMessageType('voice')}
+            >
+              <Mic size={15} />
+              语音
+            </button>
+          </div>
+          {messageType === 'text' ? (
+            <div className="edit-textarea-wrap">
+              <textarea
+                maxLength={80}
+                value={cardCopy}
+                placeholder="说说你想表达的话…"
+                onChange={(e) => dispatch({ type: 'SET_COPY', payload: e.target.value })}
+              />
+              <span className="edit-textarea-counter">{cardCopy.length}/80</span>
+            </div>
+          ) : (
+            <div className={`voice-recording-area ${isRecordingVoice ? 'is-recording' : ''}`}>
+              {!hasVoiceRecording || isRecordingVoice ? (
+                <button
+                  type="button"
+                  className="voice-record-button"
+                  aria-label={isRecordingVoice ? '正在录入语音，松手完成' : '按住录入语音'}
+                  onPointerDown={startVoiceRecording}
+                  onPointerUp={finishVoiceRecording}
+                  onPointerCancel={cancelVoiceRecording}
+                >
+                  <span className="voice-record-button__icon">
+                    <Mic size={22} />
+                  </span>
+                  <strong>{isRecordingVoice ? '正在录入语音' : '按住录入语音'}</strong>
+                  <small>{isRecordingVoice ? '松手完成录入' : '最长可录入 30 秒'}</small>
+                </button>
+              ) : (
+                <div className="voice-message-box">
+                  <button
+                    type="button"
+                    className="voice-message-box__record"
+                    aria-label="按住重新录入语音"
+                    onPointerDown={startVoiceRecording}
+                    onPointerUp={finishVoiceRecording}
+                    onPointerCancel={cancelVoiceRecording}
+                  >
+                    <Mic size={18} />
+                  </button>
+                  <div className="voice-message-box__body">
+                    <strong>已录入一段语音</strong>
+                    <MockAudioPlayer id={`draft-voice-${selectedCandidate.candidateId}-${voiceTake}`} compact label="播放语音留言" />
+                  </div>
+                  <span>{voiceDuration}s</span>
+                </div>
+              )}
+              <div className="voice-recording-area__hint">
+                {hasVoiceRecording ? '按住左侧录音按钮可重新录入并覆盖上一段。' : '按住按钮开始，说完松手即保存。'}
+              </div>
+            </div>
+          )}
+          <button
+            type="button"
+            className={`hide-in-lyric-toggle ${hideMessageInLyric ? 'active' : ''}`}
+            aria-pressed={hideMessageInLyric}
+            onClick={() => setHideMessageInLyric((value) => !value)}
+          >
+            <span>{hideMessageInLyric ? <LockKeyhole size={16} /> : <UnlockKeyhole size={16} />}</span>
+            <b>{hideMessageInLyric ? '已藏在下面的歌词片段中' : '不藏在歌词片段中'}</b>
+          </button>
+          <div className="message-visibility-note">
+            {hideMessageInLyric ? '收信人在封面上只会看到歌词，不会直接看到这段文字或语音。' : '收信人打开封面时会直接看到你的文字；语音会显示为可播放控件。'}
           </div>
         </section>
 
@@ -106,14 +230,11 @@ export function EditYinxinPage() {
         <section className="edit-section">
           <label className="edit-section__label">选择歌词片段</label>
           {/* 轮盘：高亮条随选中项平滑滑动，歌词从顶部开始 */}
-          <div className="lyric-wheel">
+          <div className="lyric-wheel" ref={wheelRef} onScroll={handleLyricScroll}>
             {/* 高亮条：跟随选中索引位置 */}
-            <div
-              className="lyric-wheel__bar"
-              style={{ top: `${selectedIndex * 56}px` }}
-            />
+            <div className="lyric-wheel__bar" />
             {lyricOptions.map((lyric, i) => {
-              const dist = Math.abs(i - selectedIndex);
+              const dist = Math.abs(i - safeSelectedIndex);
               const isActive = lyric.segmentId === selectedLyric.segmentId;
               return (
                 <button
@@ -123,7 +244,7 @@ export function EditYinxinPage() {
                     opacity: dist === 0 ? 1 : dist === 1 ? 0.5 : 0.22,
                     fontSize: dist === 0 ? '15px' : dist === 1 ? '14px' : '13px',
                   }}
-                  onClick={() => { player.reset(); dispatch({ type: 'SET_LYRIC', payload: lyric }); }}
+                  onClick={() => selectLyric(lyric)}
                 >
                   {isActive && (
                     <span className="lyric-wheel__check" aria-hidden>
@@ -162,12 +283,21 @@ export function EditYinxinPage() {
 
         {/* 底部确认按钮 */}
         <div className="edit-cta">
-          <button className="edit-cta__btn" onClick={generate}>确认并生成</button>
+          <button className="edit-cta__btn" onClick={generate} disabled={!canGenerate}>确认并生成</button>
         </div>
 
         {previewOpen && (
           <WireframeModal title="音信预览" onClose={() => setPreviewOpen(false)}>
-            <YinxinMusicCard song={selectedCandidate.song} lyric={selectedLyric} message={cardCopy} style={cardStyle} interactive={false} />
+            <YinxinMusicCard
+              song={selectedCandidate.song}
+              lyric={selectedLyric}
+              message={cardCopy}
+              messageType={messageType}
+              hideMessageInLyric={hideMessageInLyric}
+              voiceDuration={voiceDuration}
+              style={cardStyle}
+              interactive={false}
+            />
           </WireframeModal>
         )}
       </div>

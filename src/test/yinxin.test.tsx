@@ -1,7 +1,13 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { useEffect } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { EditYinxinPage } from '../app/routes/EditYinxinPage';
+import { CandidateCard } from '../components/yinxin/CandidateCard';
 import { MockAudioPlayer } from '../components/yinxin/MockAudioPlayer';
+import { YinxinMusicCard } from '../components/yinxin/YinxinMusicCard';
 import { PlayerProvider } from '../context/PlayerContext';
+import { useYinxin, YinxinProvider } from '../context/YinxinContext';
 import { allCandidates } from '../data/mockCandidates';
 import { getReplies, getSentCards, getYinxinCard, relationshipLabel, saveReply, saveYinxinCard } from '../services/shareStore';
 import { generateYinxinCandidates } from '../services/yinxinApi';
@@ -15,7 +21,34 @@ const draft: YinxinDraft = {
   createdAt: 1,
 };
 
-beforeEach(() => localStorage.clear());
+function EditPageFixture() {
+  const { selectedCandidate, dispatch } = useYinxin();
+  useEffect(() => {
+    if (!selectedCandidate) {
+      dispatch({ type: 'SELECT_CANDIDATE', payload: allCandidates[0] });
+    }
+  }, [dispatch, selectedCandidate]);
+
+  return selectedCandidate ? <EditYinxinPage /> : null;
+}
+
+function renderEditPage() {
+  render(
+    <MemoryRouter initialEntries={['/yinxin/edit/candidate']}>
+      <YinxinProvider>
+        <PlayerProvider>
+          <EditPageFixture />
+        </PlayerProvider>
+      </YinxinProvider>
+    </MemoryRouter>,
+  );
+}
+
+beforeEach(() => {
+  cleanup();
+  localStorage.clear();
+  vi.useRealTimers();
+});
 
 describe('mock candidate API', () => {
   it('returns three scene-aware candidates', async () => {
@@ -60,6 +93,74 @@ describe('share and reply store', () => {
   });
 });
 
+describe('music letter message visibility', () => {
+  it('hides text content when the message is stored in the lyric', () => {
+    const candidate = allCandidates[0];
+    render(
+      <PlayerProvider>
+        <YinxinMusicCard
+          song={candidate.song}
+          lyric={candidate.primaryLyric}
+          message="这是一句不该直接露出的文案"
+          hideMessageInLyric
+        />
+      </PlayerProvider>,
+    );
+    expect(screen.queryByText('这是一句不该直接露出的文案')).not.toBeInTheDocument();
+    expect(screen.queryByText('有一句话藏在这段歌词里')).not.toBeInTheDocument();
+    expect(screen.queryByText('收信人先看到歌词，具体内容不会出现在封面上。')).not.toBeInTheDocument();
+  });
+
+  it('shows a playable voice note in the message area', () => {
+    const candidate = allCandidates[1];
+    render(
+      <PlayerProvider>
+        <YinxinMusicCard
+          song={candidate.song}
+          lyric={candidate.primaryLyric}
+          message=""
+          messageType="voice"
+          voiceDuration={30}
+        />
+      </PlayerProvider>,
+    );
+    expect(screen.getByText('30 秒语音留言')).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText('播放语音留言'));
+    expect(screen.getAllByLabelText('暂停')).toHaveLength(1);
+  });
+});
+
+describe('edit page voice recording', () => {
+  it('records a voice note on press and release', async () => {
+    renderEditPage();
+    fireEvent.click(await screen.findByRole('button', { name: '语音' }));
+    expect(screen.getByRole('button', { name: '确认并生成' })).toBeDisabled();
+    const recordButton = screen.getByLabelText('按住录入语音');
+    fireEvent.pointerDown(recordButton);
+    expect(screen.getByText('正在录入语音')).toBeInTheDocument();
+    fireEvent.pointerUp(recordButton);
+    expect(screen.getByText('已录入一段语音')).toBeInTheDocument();
+    expect(screen.getByLabelText('播放语音留言')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '确认并生成' })).toBeEnabled();
+  });
+
+  it('lets the left record button overwrite the recorded voice note', async () => {
+    renderEditPage();
+    fireEvent.click(await screen.findByRole('button', { name: '语音' }));
+    fireEvent.pointerDown(screen.getByLabelText('按住录入语音'));
+    fireEvent.pointerUp(screen.getByLabelText('正在录入语音，松手完成'));
+    fireEvent.click(screen.getByLabelText('播放语音留言'));
+    expect(screen.getByLabelText('暂停')).toBeInTheDocument();
+
+    const rerecordButton = screen.getByLabelText('按住重新录入语音');
+    fireEvent.pointerDown(rerecordButton);
+    expect(screen.getByText('正在录入语音')).toBeInTheDocument();
+    fireEvent.pointerUp(screen.getByLabelText('正在录入语音，松手完成'));
+    expect(screen.getByText('已录入一段语音')).toBeInTheDocument();
+    expect(screen.getByLabelText('播放语音留言')).toBeInTheDocument();
+  });
+});
+
 describe('single active mock player', () => {
   it('pauses the first card when another starts', () => {
     vi.useFakeTimers();
@@ -71,5 +172,24 @@ describe('single active mock player', () => {
     act(() => vi.advanceTimersByTime(1000));
     expect(screen.getByLabelText(/播放进度 [1-9]/)).toBeInTheDocument();
     vi.useRealTimers();
+  });
+
+  it('toggles the active card between play and pause', () => {
+    render(<PlayerProvider><MockAudioPlayer id="a" label="播放 A" /></PlayerProvider>);
+    fireEvent.click(screen.getByLabelText('播放 A'));
+    expect(screen.getByLabelText('暂停')).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText('暂停'));
+    expect(screen.getByLabelText('播放 A')).toBeInTheDocument();
+  });
+
+  it('toggles candidate card playback without selecting the card', () => {
+    const onSelect = vi.fn();
+    const candidate = allCandidates[0];
+    render(<PlayerProvider><CandidateCard candidate={candidate} onSelect={onSelect} /></PlayerProvider>);
+    fireEvent.click(screen.getByLabelText(`播放${candidate.song.title}`));
+    expect(screen.getByLabelText('暂停')).toBeInTheDocument();
+    expect(onSelect).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByLabelText('暂停'));
+    expect(screen.getByLabelText(`播放${candidate.song.title}`)).toBeInTheDocument();
   });
 });
