@@ -1,3 +1,5 @@
+import { Pause, Play } from 'lucide-react';
+import { usePlayer } from '../../context/PlayerContext';
 import type { YinxinCandidate } from '../../types/yinxin';
 import { CoverArt } from './CoverArt';
 
@@ -10,6 +12,9 @@ export function CandidateCard({
   rank?: number;
   onSelect: () => void;
 }) {
+  const player = usePlayer();
+  const playerId = `candidate-${candidate.candidateId}`;
+  const playing = player.activeId === playerId && player.state === 'playing';
   // 歌词截断约 22 字
   const lyricText = candidate.primaryLyric.text;
 
@@ -28,9 +33,7 @@ export function CandidateCard({
         <div className="candidate-card__cover-overlay">
           <span className="candidate-card__cover-title">{candidate.song.title}</span>
           <span className="candidate-card__mini-play" aria-hidden>
-            <svg width="9" height="11" viewBox="0 0 9 11" fill="currentColor">
-              <path d="M0 1.1C0 .49.657.13 1.18.44l7.5 4.4c.534.31.534 1.1 0 1.42l-7.5 4.4C.657 10.87 0 10.51 0 9.9V1.1z"/>
-            </svg>
+            {playing ? <Pause size={10} fill="currentColor" /> : <Play size={10} fill="currentColor" />}
           </span>
         </div>
       </div>
@@ -73,12 +76,10 @@ export function CandidateCard({
           <div className="candidate-card__actions">
             <button
               className="select-song"
-              onClick={(e) => { e.stopPropagation(); onSelect(); }}
-              aria-label="选择"
+              onClick={(e) => { e.stopPropagation(); player.toggle(playerId); }}
+              aria-label={playing ? '暂停' : `播放${candidate.song.title}`}
             >
-              <svg width="11" height="13" viewBox="0 0 11 13" fill="currentColor">
-                <path d="M0 1.3C0 .58.748.15 1.37.51l9 5.2c.63.37.63 1.3 0 1.66l-9 5.2C.748 12.95 0 12.52 0 11.8V1.3z"/>
-              </svg>
+              {playing ? <Pause size={13} fill="currentColor" /> : <Play size={13} fill="currentColor" />}
             </button>
             <button className="card-more" aria-label="更多" onClick={(e) => e.stopPropagation()}>
               <svg width="16" height="4" viewBox="0 0 16 4" fill="none">

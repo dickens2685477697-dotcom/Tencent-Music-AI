@@ -36,17 +36,19 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   }, [state, activeId]);
 
   const toggle = useCallback((id: string) => {
-    setActiveId((currentId) => {
-      if (currentId !== id) {
-        setProgress(0);
-        setState('playing');
-        return id;
-      }
-      setState((currentState) => (currentState === 'playing' ? 'paused' : 'playing'));
-      if (state === 'ended') setProgress(0);
-      return currentId;
-    });
-  }, [state]);
+    if (activeId !== id) {
+      setActiveId(id);
+      setProgress(0);
+      setState('playing');
+      return;
+    }
+    if (state === 'ended') {
+      setProgress(0);
+      setState('playing');
+      return;
+    }
+    setState(state === 'playing' ? 'paused' : 'playing');
+  }, [activeId, state]);
 
   const reset = useCallback(() => {
     setActiveId(undefined);

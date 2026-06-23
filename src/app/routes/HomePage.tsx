@@ -4,6 +4,8 @@ import {
   Disc3,
   Mail,
   Music2,
+  Pause,
+  Play,
   Radio,
   Search,
   Star,
@@ -14,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppShell } from '../../components/layout/AppShell';
 import { CoverArt } from '../../components/yinxin/CoverArt';
 import { Toast } from '../../components/yinxin/Toast';
+import { usePlayer } from '../../context/PlayerContext';
 
 const shortcuts = [
   { label: '每日推荐', icon: <Star size={20} /> },
@@ -31,6 +34,7 @@ const songs = [
 
 export function HomePage() {
   const navigate = useNavigate();
+  const player = usePlayer();
   const [toast, setToast] = useState('');
   const unavailable = () => {
     setToast('demo 中暂未开放');
@@ -111,14 +115,20 @@ export function HomePage() {
               <ChevronRight size={14} />
             </button>
           </header>
-          {songs.map(({ title, artist, index }) => (
-            <button className="song-row" onClick={unavailable} key={index}>
+          {songs.map(({ title, artist, index }) => {
+            const playerId = `home-song-${index}`;
+            const playing = player.activeId === playerId && player.state === 'playing';
+            return (
+            <button
+              className={`song-row ${playing ? 'song-row--playing' : ''}`}
+              onClick={() => player.toggle(playerId)}
+              key={index}
+              aria-label={playing ? `暂停${title}` : `播放${title}`}
+            >
               <div className="song-row__cover">
                 <CoverArt index={index} />
                 <div className="song-row__play-overlay">
-                  <svg width="13" height="16" viewBox="0 0 13 16" fill="white">
-                    <path d="M1 1.5l11 6.5-11 6.5V1.5z"/>
-                  </svg>
+                  {playing ? <Pause size={16} fill="white" /> : <Play size={16} fill="white" />}
                 </div>
               </div>
               <span>
@@ -134,7 +144,8 @@ export function HomePage() {
                 </svg>
               </div>
             </button>
-          ))}
+            );
+          })}
         </section>
 
         {/* 底部 5 Tab 导航 */}
