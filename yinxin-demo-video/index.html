@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>音信 Demo 产品介绍</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        background: #020403;
+        color: #f5f8f6;
+        font-family: system-ui, sans-serif;
+        overflow: hidden;
+      }
+
+      #main {
+        position: relative;
+        width: 1440px;
+        height: 1080px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 76% 40%, rgba(33, 200, 121, 0.16) 0, rgba(33, 200, 121, 0) 320px),
+          radial-gradient(circle at 10% 95%, rgba(167, 243, 199, 0.08) 0, rgba(167, 243, 199, 0) 360px),
+          #020403;
+      }
+
+      .grain {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        pointer-events: none;
+        opacity: 0.24;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+        background-size: 34px 34px, 34px 34px;
+        mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.18));
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        padding: 96px 116px;
+        color: #f5f8f6;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 80% 45%, rgba(33, 200, 121, 0.14) 0, rgba(33, 200, 121, 0) 330px),
+          radial-gradient(circle at 14% 82%, rgba(167, 243, 199, 0.08) 0, rgba(167, 243, 199, 0) 360px),
+          #020403;
+      }
+
+      .stage-mark {
+        position: absolute;
+        left: 116px;
+        top: 76px;
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: rgba(245, 248, 246, 0.72);
+        font-size: 18px;
+        font-weight: 500;
+      }
+
+      .stage-mark::before {
+        content: "";
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #21c879;
+        box-shadow: 0 0 24px rgba(33, 200, 121, 0.6);
+      }
+
+      .intro-scene {
+        display: grid;
+        place-items: center;
+        padding: 0;
+        background: #000;
+      }
+
+      .intro-title {
+        max-width: 980px;
+        color: #f5f8f6;
+        font-size: 64px;
+        font-weight: 500;
+        line-height: 1.25;
+        text-align: center;
+      }
+
+      #opening-video {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background: #000;
+      }
+
+      .opening-overlay {
+        z-index: 3;
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-start;
+        padding: 0 116px 94px;
+        background:
+          linear-gradient(90deg, rgba(2, 4, 3, 0.82) 0%, rgba(2, 4, 3, 0.48) 38%, rgba(2, 4, 3, 0.05) 72%),
+          linear-gradient(0deg, rgba(2, 4, 3, 0.72) 0%, rgba(2, 4, 3, 0) 42%);
+      }
+
+      .opening-copy {
+        width: 560px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 22px;
+        color: #a7f3c7;
+        font-size: 20px;
+        font-weight: 600;
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 44px;
+        height: 2px;
+        border-radius: 99px;
+        background: #21c879;
+      }
+
+      .opening-copy h1,
+      .copy h1 {
+        max-width: 640px;
+        margin: 0;
+        font-size: 68px;
+        font-weight: 650;
+        line-height: 1.16;
+      }
+
+      .opening-copy p,
+      .copy p {
+        max-width: 600px;
+        margin: 26px 0 0;
+        color: rgba(245, 248, 246, 0.72);
+        font-size: 31px;
+        font-weight: 400;
+        line-height: 1.45;
+      }
+
+      .product-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 520px;
+        gap: 72px;
+        align-items: center;
+        height: 100%;
+        padding-top: 24px;
+      }
+
+      .copy {
+        position: relative;
+        z-index: 4;
+        align-self: center;
+      }
+
+      .copy-kicker {
+        display: inline-flex;
+        align-items: center;
+        margin-bottom: 28px;
+        padding: 9px 18px;
+        border: 1px solid rgba(33, 200, 121, 0.3);
+        border-radius: 999px;
+        color: #a7f3c7;
+        background: rgba(33, 200, 121, 0.08);
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .copy strong {
+        color: #a7f3c7;
+        font-weight: 650;
+      }
+
+      .copy-list {
+        display: grid;
+        gap: 14px;
+        max-width: 610px;
+        margin-top: 34px;
+      }
+
+      .copy-list span {
+        display: grid;
+        grid-template-columns: 24px minmax(0, 1fr);
+        gap: 14px;
+        align-items: start;
+        color: rgba(245, 248, 246, 0.78);
+        font-size: 24px;
+        line-height: 1.45;
+      }
+
+      .copy-list span::before {
+        content: "";
+        width: 9px;
+        height: 9px;
+        margin-top: 13px;
+        border-radius: 50%;
+        background: #21c879;
+        box-shadow: 0 0 16px rgba(33, 200, 121, 0.45);
+      }
+
+      .phone-stage {
+        position: relative;
+        z-index: 4;
+        display: grid;
+        place-items: center;
+        width: 520px;
+        height: 880px;
+      }
+
+      .phone-shadow {
+        position: absolute;
+        z-index: 0;
+        width: 430px;
+        height: 850px;
+        border-radius: 58px;
+        background: rgba(33, 200, 121, 0.08);
+        filter: blur(54px);
+      }
+
+      .phone-frame {
+        position: relative;
+        z-index: 2;
+        width: 390px;
+        height: 844px;
+        overflow: hidden;
+        border: 1px solid rgba(245, 248, 246, 0.18);
+        border-radius: 42px;
+        background: #fff;
+        box-shadow:
+          0 40px 110px rgba(0, 0, 0, 0.48),
+          0 0 0 10px rgba(255, 255, 255, 0.035);
+      }
+
+      .phone-frame img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .phone-label {
+        position: absolute;
+        right: -28px;
+        bottom: 86px;
+        z-index: 8;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        border: 1px solid rgba(245, 248, 246, 0.14);
+        border-radius: 999px;
+        color: #f5f8f6;
+        background: rgba(7, 17, 13, 0.78);
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.26);
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .phone-label::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #21c879;
+      }
+
+      .dual-phone-stage {
+        position: relative;
+        z-index: 4;
+        width: 620px;
+        height: 880px;
+      }
+
+      .dual-phone-stage .phone-stage {
+        position: absolute;
+        inset: 0 auto auto 0;
+      }
+
+      .dual-phone-stage .phone-stage:nth-child(2) {
+        left: 180px;
+        top: 36px;
+        transform: scale(0.88);
+        opacity: 0.92;
+        z-index: 1;
+      }
+
+      .dual-phone-stage .phone-stage:nth-child(1) {
+        z-index: 3;
+      }
+
+      .dual-phone-stage .phone-stage:nth-child(1) .phone-label {
+        right: 22px;
+        bottom: 28px;
+      }
+
+      .feature-callouts {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        max-width: 680px;
+        margin-top: 36px;
+      }
+
+      .feature-card {
+        min-height: 168px;
+        padding: 22px;
+        border: 1px solid rgba(245, 248, 246, 0.14);
+        border-radius: 22px;
+        background: rgba(245, 248, 246, 0.055);
+      }
+
+      .feature-card b {
+        display: block;
+        color: #f5f8f6;
+        font-size: 24px;
+        font-weight: 650;
+      }
+
+      .feature-card p {
+        margin: 12px 0 0;
+        color: rgba(245, 248, 246, 0.7);
+        font-size: 20px;
+        line-height: 1.45;
+      }
+
+      .feature-card.is-active {
+        border-color: rgba(33, 200, 121, 0.48);
+        background: rgba(33, 200, 121, 0.1);
+        box-shadow: 0 16px 40px rgba(33, 200, 121, 0.12);
+      }
+
+      .closing-lockup {
+        position: absolute;
+        left: 116px;
+        bottom: 86px;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        color: rgba(245, 248, 246, 0.78);
+        font-size: 22px;
+      }
+
+      .closing-lockup span {
+        display: grid;
+        place-items: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 16px;
+        color: #020403;
+        background: #21c879;
+        font-weight: 800;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="main"
+      data-composition-id="yinxin-demo"
+      data-start="0"
+      data-duration="130"
+      data-width="1440"
+      data-height="1080"
+      data-track-index="0"
+    >
+      <div class="grain" data-layout-ignore></div>
+
+      <audio
+        id="narration"
+        data-start="0"
+        data-duration="130"
+        data-track-index="20"
+        src="assets/audio/narration.wav"
+        data-volume="1"
+      ></audio>
+
+      <div id="intro" class="clip scene intro-scene" data-start="0" data-duration="5.6" data-track-index="1">
+        <h1 id="intro-title" class="intro-title">你是否也有过这样的时刻</h1>
+      </div>
+
+      <video
+        id="opening-video"
+        data-start="5"
+        data-duration="20"
+        data-track-index="6"
+        src="assets/video/opening-chat-fast.mp4"
+        muted
+        playsinline
+      ></video>
+
+      <div id="opening-copy" class="clip scene opening-overlay" data-start="5" data-duration="20.2" data-track-index="2">
+        <div class="opening-copy">
+          <span class="eyebrow">真实场景</span>
+          <h1>有些表达，停在发送之前</h1>
+          <p>几次输入，又几次删去。越是真实的心意，越难直接说出口。</p>
+        </div>
+      </div>
+
+      <section id="scene-home" class="clip scene" data-start="24.4" data-duration="15.2" data-track-index="1">
+        <div class="stage-mark">音信 Demo</div>
+        <div class="product-layout">
+          <div class="copy">
+            <span class="copy-kicker">产品出现</span>
+            <h1><strong>音信</strong> 是 QQ 音乐中的音乐表达功能</h1>
+            <p>它不只是分享一首歌，而是把难以直接表达的情绪，转化成一封音乐信件。</p>
+          </div>
+          <div class="phone-stage">
+            <div class="phone-shadow"></div>
+            <div class="phone-frame">
+              <img src="assets/visual2/01-qqmusic-home.png" alt="QQ 音乐首页中的音信入口" />
+            </div>
+            <div class="phone-label">音信入口</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-create" class="clip scene" data-start="39" data-duration="19.6" data-track-index="2">
+        <div class="stage-mark">发送端</div>
+        <div class="product-layout">
+          <div class="copy">
+            <span class="copy-kicker">留下此刻想表达的内容</span>
+            <h1>输入一句话，一段情绪，或一段语音</h1>
+            <div class="copy-list">
+              <span>选择想要送达的对象</span>
+              <span>描述当下的心情与语气</span>
+              <span>无需提前确定歌曲或歌词</span>
+            </div>
+          </div>
+          <div class="phone-stage">
+            <div class="phone-shadow"></div>
+            <div class="phone-frame">
+              <img src="assets/visual2/02-create-yinxin.png" alt="音信创作页" />
+            </div>
+            <div class="phone-label">创作音信</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-ai" class="clip scene" data-start="58" data-duration="16.6" data-track-index="1">
+        <div class="stage-mark">AI 生成</div>
+        <div class="product-layout">
+          <div class="copy">
+            <span class="copy-kicker">从情绪到歌词</span>
+            <h1>匹配最适合承载心意的作品</h1>
+            <p>音信会生成一首歌、一句关键歌词，以及最适合播放的音乐片段。</p>
+          </div>
+          <div class="dual-phone-stage">
+            <div class="phone-stage">
+              <div class="phone-shadow"></div>
+              <div class="phone-frame">
+                <img src="assets/visual2/04-song-results.png" alt="音信歌曲结果页" />
+              </div>
+              <div class="phone-label">候选音信</div>
+            </div>
+            <div class="phone-stage">
+              <div class="phone-shadow"></div>
+              <div class="phone-frame">
+                <img src="assets/visual2/03-ai-matching.png" alt="AI 匹配页" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-edit" class="clip scene" data-start="74" data-duration="25.6" data-track-index="2">
+        <div class="stage-mark">新功能重点</div>
+        <div class="product-layout">
+          <div class="copy">
+            <span class="copy-kicker">是否藏在歌词里</span>
+            <h1>表达可以直接抵达，也可以缓缓显现</h1>
+            <div class="feature-callouts">
+              <div class="feature-card">
+                <b>直接展示</b>
+                <p>接收者打开音信后，可以直接看到文字，或听到语音。</p>
+              </div>
+              <div class="feature-card is-active">
+                <b>藏在歌词里</b>
+                <p>内容被放进歌词语境，随歌曲播放逐渐被发现。</p>
+              </div>
+            </div>
+          </div>
+          <div class="phone-stage">
+            <div class="phone-shadow"></div>
+            <div class="phone-frame">
+              <img src="assets/visual2/05-edit-yinxin.png" alt="编辑音信页" />
+            </div>
+            <div class="phone-label">隐藏表达</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-receiver" class="clip scene" data-start="99" data-duration="18.6" data-track-index="1">
+        <div class="stage-mark">接收端</div>
+        <div class="product-layout">
+          <div class="copy">
+            <span class="copy-kicker">收到一封音信</span>
+            <h1>不再只是一次普通的歌曲分享</h1>
+            <p>封面、歌词、关键片段与隐藏其中的表达，共同构成一封完整的音乐信件。</p>
+          </div>
+          <div class="dual-phone-stage">
+            <div class="phone-stage">
+              <div class="phone-shadow"></div>
+              <div class="phone-frame">
+                <img src="assets/visual2/09-receiver-view.png" alt="接收端打开音信" />
+              </div>
+              <div class="phone-label">收到音信</div>
+            </div>
+            <div class="phone-stage">
+              <div class="phone-shadow"></div>
+              <div class="phone-frame">
+                <img src="assets/visual2/06-share-yinxin.png" alt="分享音信页" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-reply" class="clip scene" data-start="117" data-duration="13" data-track-index="2">
+        <div class="stage-mark">关系延续</div>
+        <div class="product-layout">
+          <div class="copy">
+            <span class="copy-kicker">回复与总结</span>
+            <h1>让说不出口的话，成为一首歌里的心意</h1>
+            <p>回应可以是一段文字，也可以是另一首歌。音乐成为人与人之间传递情绪、建立连接的一种语言。</p>
+          </div>
+          <div class="dual-phone-stage">
+            <div class="phone-stage">
+              <div class="phone-shadow"></div>
+              <div class="phone-frame">
+                <img src="assets/visual2/08-reply-yinxin.png" alt="回复音信页" />
+              </div>
+              <div class="phone-label">回一封音信</div>
+            </div>
+            <div class="phone-stage">
+              <div class="phone-shadow"></div>
+              <div class="phone-frame">
+                <img src="assets/visual2/07-sent-list.png" alt="寄出的音信列表" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="closing-lockup">
+          <span>音</span>
+          <b>音信 Demo</b>
+        </div>
+      </section>
+    </div>
+
+    <script src="node_modules/gsap/dist/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+
+      var tl = gsap.timeline({ paused: true });
+      var TOTAL = 130;
+
+      function fromIf(target, vars, position) {
+        if (document.querySelector(target)) {
+          tl.from(target, vars, position);
+        }
+      }
+
+      function toIf(target, vars, position) {
+        if (document.querySelector(target)) {
+          tl.to(target, vars, position);
+        }
+      }
+
+      function enterScene(selector, start, accent) {
+        fromIf(selector, { opacity: 0, scale: 1.015, duration: 0.72, ease: "sine.inOut", overwrite: "auto" }, start);
+        fromIf(selector + " .stage-mark", { x: -34, opacity: 0, duration: 0.48, ease: "power3.out", overwrite: "auto" }, start + 0.18);
+        fromIf(selector + " .copy-kicker", { y: 24, opacity: 0, duration: 0.46, ease: "power2.out", overwrite: "auto" }, start + 0.32);
+        fromIf(selector + " .copy h1", { x: -44, opacity: 0, duration: 0.68, ease: "expo.out", overwrite: "auto" }, start + 0.42);
+        fromIf(selector + " .copy p", { y: 36, opacity: 0, duration: 0.58, ease: "power1.out", overwrite: "auto" }, start + 0.62);
+        fromIf(selector + " .copy-list span", { x: -28, opacity: 0, duration: 0.5, stagger: 0.09, ease: "power4.out", overwrite: "auto" }, start + 0.7);
+        fromIf(selector + " .feature-card", { y: 30, opacity: 0, scale: 0.97, duration: 0.58, stagger: 0.12, ease: "back.out(1.35)", overwrite: "auto" }, start + 0.72);
+        fromIf(selector + " .phone-frame", { x: 54, opacity: 0, scale: 0.965, duration: 0.72, ease: "power3.out", overwrite: "auto" }, start + 0.38);
+        fromIf(selector + " .phone-label", { x: 24, opacity: 0, duration: 0.48, ease: "circ.out", overwrite: "auto" }, start + 0.88);
+        fromIf(selector + " .closing-lockup", { y: 24, opacity: 0, duration: 0.5, ease: "power2.out", overwrite: "auto" }, start + 1.1);
+
+        var repeatCount = Math.ceil(20 / 4) - 1;
+        toIf(selector + " .phone-shadow", { scale: accent ? 1.12 : 1.06, opacity: accent ? 0.95 : 0.72, duration: 2, repeat: repeatCount, yoyo: true, ease: "sine.inOut", overwrite: "auto" }, start + 1.1);
+      }
+
+      fromIf("#intro-title", { y: 22, opacity: 0, duration: 1.2, ease: "sine.inOut", overwrite: "auto" }, 0.25);
+      fromIf("#opening-video", { opacity: 0, scale: 1.02, duration: 0.78, ease: "sine.inOut", overwrite: "auto" }, 5);
+      fromIf("#opening-copy .eyebrow", { x: -30, opacity: 0, duration: 0.5, ease: "power3.out", overwrite: "auto" }, 5.4);
+      fromIf("#opening-copy h1", { x: -42, opacity: 0, duration: 0.72, ease: "expo.out", overwrite: "auto" }, 5.62);
+      fromIf("#opening-copy p", { y: 34, opacity: 0, duration: 0.66, ease: "power1.out", overwrite: "auto" }, 5.96);
+
+      enterScene("#scene-home", 24.4, false);
+      enterScene("#scene-create", 39, false);
+      enterScene("#scene-ai", 58, false);
+      enterScene("#scene-edit", 74, true);
+      enterScene("#scene-receiver", 99, false);
+      enterScene("#scene-reply", 117, true);
+
+      toIf("#scene-reply", { opacity: 0, duration: 0.9, ease: "sine.inOut", overwrite: "auto" }, 129.1);
+      toIf(".grain", { opacity: 0, duration: 0.6, ease: "sine.inOut", overwrite: "auto" }, 129.3);
+
+      window.__timelines["yinxin-demo"] = tl;
+    </script>
+  </body>
+</html>

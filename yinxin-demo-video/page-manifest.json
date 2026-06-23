@@ -1,0 +1,72 @@
+[
+  {
+    "id": "home",
+    "title": "首页入口",
+    "asset": "assets/visual2/01-qqmusic-home.png",
+    "caption": "音信，是 QQ 音乐中的音乐表达功能",
+    "focus": "音信入口"
+  },
+  {
+    "id": "create",
+    "title": "发送端输入",
+    "asset": "assets/visual2/02-create-yinxin.png",
+    "caption": "写下想说的话，或录下一段语音",
+    "focus": "输入与情绪选择"
+  },
+  {
+    "id": "matching",
+    "title": "AI 匹配",
+    "asset": "assets/visual2/03-ai-matching.png",
+    "caption": "从情绪到音乐，开始转译",
+    "focus": "AI 生成中"
+  },
+  {
+    "id": "results",
+    "title": "歌曲结果",
+    "asset": "assets/visual2/04-song-results.png",
+    "caption": "找到歌曲、关键歌词和播放片段",
+    "focus": "候选音信"
+  },
+  {
+    "id": "edit",
+    "title": "编辑音信",
+    "asset": "assets/visual2/05-edit-yinxin.png",
+    "caption": "表达可以直接出现，也可以藏在歌词里",
+    "focus": "是否藏在歌词里"
+  },
+  {
+    "id": "share",
+    "title": "分享音信",
+    "asset": "assets/visual2/06-share-yinxin.png",
+    "caption": "把歌和想说的话，一起装进信封",
+    "focus": "分享前预览"
+  },
+  {
+    "id": "receiver",
+    "title": "接收端打开",
+    "asset": "assets/visual2/09-receiver-view.png",
+    "caption": "接收者打开的是一封完整的音乐信件",
+    "focus": "收到音信"
+  },
+  {
+    "id": "reply",
+    "title": "回复音信",
+    "asset": "assets/visual2/08-reply-yinxin.png",
+    "caption": "回应可以是文字，也可以是另一首歌",
+    "focus": "回一封音信"
+  },
+  {
+    "id": "sent",
+    "title": "寄出管理",
+    "asset": "assets/visual2/07-sent-list.png",
+    "caption": "音乐成为关系继续流动的语言",
+    "focus": "我寄出的音信"
+  },
+  {
+    "id": "sent-detail",
+    "title": "寄出详情",
+    "asset": "assets/visual2/07b-sent-detail.png",
+    "caption": "每一次回应，都被留在这封音信里",
+    "focus": "回复详情"
+  }
+]
