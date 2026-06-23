@@ -746,7 +746,20 @@ textarea::placeholder { color: #929292; }
 }
 .edit-page .page-header {
   background: transparent;
-  width: 100%;
+  /* 突破 .page 的左右内边距，让背景可占满整宽，同时内部内容位置不变 */
+  align-self: stretch;
+  margin-left: calc(-1 * var(--space-5));
+  margin-right: calc(-1 * var(--space-5));
+  padding-left: var(--space-5);
+  padding-right: var(--space-5);
+  transition: background .2s ease, box-shadow .2s ease, backdrop-filter .2s ease;
+}
+/* 下滑后吸顶栏渐变白底，避免标题与卡片文字重叠 */
+.edit-page .page-header.page-header--scrolled {
+  background: linear-gradient(180deg, #ffffff 62%, rgba(255,255,255,0.82) 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 6px 16px rgba(0,109,62,0.06);
 }
 .edit-page .page-header .icon-button { color: #303030; }
 .edit-page .page-header strong { color: #242424; }
