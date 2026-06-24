@@ -128,11 +128,6 @@ export function EditYinxinPage() {
                 <strong>{selectedCandidate.song.title}</strong>
                 <span>{selectedCandidate.song.artist}</span>
               </div>
-              <div className="edit-music-card__lyric-row">
-                <span className="emc-q">"</span>
-                <span className="emc-lyric">{selectedLyric.text}</span>
-                <span className="emc-q emc-q--close">"</span>
-              </div>
             </div>
           </div>
           <div className="edit-music-card__player">
@@ -175,7 +170,7 @@ export function EditYinxinPage() {
             </div>
           ) : (
             <div className={`voice-recording-area ${isRecordingVoice ? 'is-recording' : ''}`}>
-              {!hasVoiceRecording || isRecordingVoice ? (
+              {!hasVoiceRecording ? (
                 <button
                   type="button"
                   className="voice-record-button"
@@ -191,22 +186,24 @@ export function EditYinxinPage() {
                   <small>{isRecordingVoice ? '松手完成录入' : '最长可录入 30 秒'}</small>
                 </button>
               ) : (
-                <div className="voice-message-box">
+                <div className={`voice-message-box ${isRecordingVoice ? 'is-recording' : ''}`} aria-busy={isRecordingVoice}>
                   <button
                     type="button"
                     className="voice-message-box__record"
-                    aria-label="按住重新录入语音"
+                    aria-label={isRecordingVoice ? '正在录入语音，松手完成' : '按住重新录入语音'}
                     onPointerDown={startVoiceRecording}
                     onPointerUp={finishVoiceRecording}
                     onPointerCancel={cancelVoiceRecording}
                   >
                     <Mic size={18} />
+                    {isRecordingVoice ? <span className="voice-message-box__record-status">录音中</span> : null}
                   </button>
                   <div className="voice-message-box__body">
                     <strong>已录入一段语音</strong>
                     <MockAudioPlayer id={`draft-voice-${selectedCandidate.candidateId}-${voiceTake}`} compact label="播放语音留言" />
                   </div>
                   <span>{voiceDuration}s</span>
+                  {isRecordingVoice ? <div className="voice-message-box__mask" aria-hidden /> : null}
                 </div>
               )}
               <div className="voice-recording-area__hint">

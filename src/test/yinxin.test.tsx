@@ -154,7 +154,7 @@ describe('edit page voice recording', () => {
 
     const rerecordButton = screen.getByLabelText('按住重新录入语音');
     fireEvent.pointerDown(rerecordButton);
-    expect(screen.getByText('正在录入语音')).toBeInTheDocument();
+    expect(screen.getByLabelText('正在录入语音，松手完成')).toBeInTheDocument();
     fireEvent.pointerUp(screen.getByLabelText('正在录入语音，松手完成'));
     expect(screen.getByText('已录入一段语音')).toBeInTheDocument();
     expect(screen.getByLabelText('播放语音留言')).toBeInTheDocument();

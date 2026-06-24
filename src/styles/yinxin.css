@@ -874,7 +874,7 @@ textarea::placeholder { color: #929292; }
 }
 .edit-music-card__row {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 12px;
   padding: 16px 16px 0;
 }
@@ -888,8 +888,7 @@ textarea::placeholder { color: #929292; }
   width: 176px;
   display: flex;
   flex-direction: column;
-  gap: 17px;
-  padding-bottom: 4px;
+  padding-top: 1px;
 }
 .edit-music-card__titles strong {
   display: block;
@@ -1077,6 +1076,7 @@ textarea::placeholder { color: #929292; }
   box-shadow: 0 0 0 10px rgba(33,200,121,.10), 0 10px 22px rgba(33,200,121,.24);
 }
 .voice-message-box {
+  position: relative;
   display: grid;
   grid-template-columns: 42px 1fr auto;
   align-items: center;
@@ -1086,8 +1086,11 @@ textarea::placeholder { color: #929292; }
   background: #F5F7F6;
   border: 1px solid #EBEEF0;
   border-radius: 18px;
+  overflow: hidden;
 }
 .voice-message-box__record {
+  position: relative;
+  z-index: 2;
   width: 42px;
   height: 42px;
   display: grid;
@@ -1098,6 +1101,28 @@ textarea::placeholder { color: #929292; }
   border-radius: 50%;
   touch-action: none;
   user-select: none;
+}
+.voice-message-box__record-status {
+  position: absolute;
+  inset: -7px;
+  color: transparent;
+  border: 2px solid rgba(33,200,121,.34);
+  border-radius: inherit;
+  animation: voice-record-pulse 1s ease-out infinite;
+}
+.voice-message-box.is-recording .voice-message-box__record {
+  color: #fff;
+  background: #21C879;
+  box-shadow: 0 0 0 9px rgba(33,200,121,.12), 0 10px 22px rgba(33,200,121,.24);
+  transform: scale(1.05);
+}
+.voice-message-box__mask {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(255,255,255,.68);
+  backdrop-filter: blur(1px);
+  pointer-events: none;
 }
 .voice-message-box__body { min-width: 0; }
 .voice-message-box__body strong {
@@ -1112,6 +1137,14 @@ textarea::placeholder { color: #929292; }
 .voice-message-box .progress-track { background: #D3E4DC; }
 .voice-message-box .progress-track span { background: #21C879; }
 .voice-message-box small, .voice-message-box > span { color: #9AA0A6; font-size: 11px; }
+.voice-message-box.is-recording .voice-message-box__body,
+.voice-message-box.is-recording > span:not(.voice-message-box__record-status) {
+  opacity: .56;
+}
+@keyframes voice-record-pulse {
+  0% { opacity: .85; transform: scale(.9); }
+  100% { opacity: 0; transform: scale(1.35); }
+}
 .voice-recording-area__hint {
   padding: 0 2px;
   color: #8B9691;
