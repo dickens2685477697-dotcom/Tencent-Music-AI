@@ -6,6 +6,7 @@ import { CoverArt } from './CoverArt';
 
 function formatDuration(durationSeconds?: number) {
   const safeSeconds = Math.max(0, durationSeconds ?? 0);
+  if (safeSeconds <= 0) return '00:30';
   const minutes = Math.floor(safeSeconds / 60);
   const seconds = safeSeconds % 60;
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
