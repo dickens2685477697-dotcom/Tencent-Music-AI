@@ -5,6 +5,30 @@ const CARDS_KEY = 'yinxin.cards.v1';
 const REPLIES_KEY = 'yinxin.replies.v1';
 
 const seedCards: YinxinCardData[] = [
+  {
+    shareId: 'wechat_demo',
+    candidateId: 'wechat_demo_jay',
+    song: {
+      songId: 'jay_kai_bu_liao_kou',
+      title: '开不了口',
+      artist: '周杰伦',
+      album: '范特西',
+      coverUrl: '/assets/wechat-demo/jay-cover.jpg',
+      coverIndex: 6,
+    },
+    selectedLyric: {
+      segmentId: 'wechat_demo_lyric',
+      text: '没说出口的，都藏在这一句里',
+      startTime: 26,
+      endTime: 32,
+      emotionTags: ['想念', '克制'],
+    },
+    userMessage: '到家就好。其实那句没发出去的话，我放在这封音信里了。',
+    cardStyle: 'green',
+    relationship: 'lover',
+    openCount: 1,
+    createdAt: new Date('2026-06-24T16:38:00').getTime(),
+  },
   { shareId: 'sent_friend', candidateId: allCandidates[0].candidateId, song: allCandidates[0].song, selectedLyric: allCandidates[0].primaryLyric, userMessage: '最近的夜晚总让我想起你，愿你被温柔以待，平安喜乐。', cardStyle: 'midnight', relationship: 'friend', openCount: 5, createdAt: new Date('2026-06-20T20:30:00').getTime() },
   { shareId: 'sent_lover', candidateId: allCandidates[1].candidateId, song: allCandidates[1].song, selectedLyric: allCandidates[1].primaryLyric, userMessage: '有些想念不用说得太满，这首歌会替我慢慢告诉你。', cardStyle: 'green', relationship: 'lover', openCount: 2, createdAt: new Date('2026-06-15T19:20:00').getTime() },
   { shareId: 'sent_teacher', candidateId: allCandidates[3].candidateId, song: allCandidates[3].song, selectedLyric: allCandidates[3].primaryLyric, userMessage: '谢谢你曾经给我的鼓励，我一直都记得。', cardStyle: 'minimal', relationship: 'teacher', openCount: 12, createdAt: new Date('2026-06-10T10:10:00').getTime() },

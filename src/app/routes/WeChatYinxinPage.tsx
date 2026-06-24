@@ -1,0 +1,366 @@
+import {
+  ChevronLeft,
+  Heart,
+  Mail,
+  Menu,
+  MessageCircle,
+  Mic,
+  MoreHorizontal,
+  Music2,
+  Pause,
+  Play,
+  Plus,
+  Share2,
+  SkipBack,
+  SkipForward,
+  Smile,
+  ThumbsUp,
+  UserRound,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AppShell } from '../../components/layout/AppShell';
+
+type DeliveryMode = 'lyric' | 'direct';
+type ScenarioView = 'setup' | 'chat' | 'player';
+
+const modeLabels: Record<DeliveryMode, string> = {
+  lyric: '藏在歌词中',
+  direct: '不隐藏',
+};
+
+export function WeChatYinxinPage() {
+  const navigate = useNavigate();
+  const [mode, setMode] = useState<DeliveryMode>('lyric');
+  const [view, setView] = useState<ScenarioView>('setup');
+  const [receiverOpening, setReceiverOpening] = useState(false);
+  const [playerRun, setPlayerRun] = useState(0);
+
+  useEffect(() => {
+    if (view !== 'player') return undefined;
+    setReceiverOpening(false);
+    const startTimer = window.setTimeout(() => setReceiverOpening(true), 2600);
+    const navigateTimer = window.setTimeout(() => {
+      navigate('/s/wechat_demo', { state: { backTo: '/wechat-yinxin' } });
+    }, 3450);
+    return () => {
+      window.clearTimeout(startTimer);
+      window.clearTimeout(navigateTimer);
+    };
+  }, [navigate, view, playerRun]);
+
+  const enterChat = () => {
+    setReceiverOpening(false);
+    setView('chat');
+  };
+
+  const openMusic = () => {
+    if (mode === 'lyric') {
+      setView('player');
+      setPlayerRun((current) => current + 1);
+      return;
+    }
+    openLetter();
+  };
+
+  const openLetter = () => {
+    navigate('/s/wechat_demo', { state: { backTo: '/wechat-yinxin' } });
+  };
+
+  return (
+    <AppShell light>
+      <div className={`wechat-demo wechat-demo--${view}`}>
+        {view === 'setup' ? (
+          <ModeSetup mode={mode} onModeChange={setMode} onEnter={enterChat} />
+        ) : view === 'chat' ? (
+          <ChatScreen
+            mode={mode}
+            onBack={() => {
+              setReceiverOpening(false);
+              setView('setup');
+            }}
+            onOpenMusic={openMusic}
+          />
+        ) : (
+          <QQMusicPlayer
+            receiverOpening={receiverOpening}
+            onBack={() => {
+              setReceiverOpening(false);
+              setView('chat');
+            }}
+          />
+        )}
+      </div>
+    </AppShell>
+  );
+}
+
+function ModeSetup({
+  mode,
+  onModeChange,
+  onEnter,
+}: {
+  mode: DeliveryMode;
+  onModeChange: (mode: DeliveryMode) => void;
+  onEnter: () => void;
+}) {
+  return (
+    <section className="wechat-setup">
+      <WeChatStatusBar />
+      <header className="wechat-setup__header">
+        <strong>他</strong>
+        <MoreHorizontal size={24} />
+      </header>
+
+      <div className="wechat-setup__body">
+        <div className="wechat-setup__avatar">他</div>
+        <h1>呈现方式</h1>
+        <div className="wechat-mode-grid" role="radiogroup" aria-label="选择音信呈现方式">
+          <button
+            className={`wechat-mode-card ${mode === 'lyric' ? 'wechat-mode-card--active' : ''}`}
+            type="button"
+            onClick={() => onModeChange('lyric')}
+            role="radio"
+            aria-checked={mode === 'lyric'}
+          >
+            <Music2 size={19} />
+            <span>{modeLabels.lyric}</span>
+            <small>QQ音乐分享卡</small>
+          </button>
+          <button
+            className={`wechat-mode-card ${mode === 'direct' ? 'wechat-mode-card--active' : ''}`}
+            type="button"
+            onClick={() => onModeChange('direct')}
+            role="radio"
+            aria-checked={mode === 'direct'}
+          >
+            <Mail size={19} />
+            <span>{modeLabels.direct}</span>
+            <small>音信专属卡</small>
+          </button>
+        </div>
+
+        <div className="wechat-setup-preview" aria-hidden="true">
+          <ChatBubble side="other">到家了吗？</ChatBubble>
+          <ChatBubble side="me">到家啦～</ChatBubble>
+          {mode === 'lyric' ? <QQMusicShareCard compact /> : <YinxinDirectCard compact />}
+        </div>
+      </div>
+
+      <footer className="wechat-setup__footer">
+        <button className="wechat-enter-button" type="button" onClick={onEnter}>
+          进入聊天
+        </button>
+      </footer>
+    </section>
+  );
+}
+
+function ChatScreen({
+  mode,
+  onBack,
+  onOpenMusic,
+}: {
+  mode: DeliveryMode;
+  onBack: () => void;
+  onOpenMusic: () => void;
+}) {
+  return (
+    <section className="wechat-chat">
+      <WeChatStatusBar />
+      <header className="wechat-chat__nav">
+        <button type="button" aria-label="返回模式设置" onClick={onBack}>
+          <ChevronLeft size={30} />
+        </button>
+        <strong>他</strong>
+        <button type="button" aria-label="更多">
+          <MoreHorizontal size={24} />
+        </button>
+      </header>
+
+      <main className="wechat-chat__messages">
+        <div className="wechat-message-row wechat-message-row--other">
+          <Avatar tone="dark" />
+          <ChatBubble side="other">到家了吗？</ChatBubble>
+        </div>
+        <div className="wechat-message-row wechat-message-row--me">
+          <ChatBubble side="me">到家啦～</ChatBubble>
+          <Avatar tone="light" />
+        </div>
+        <div className="wechat-message-row wechat-message-row--other wechat-message-row--music">
+          <Avatar tone="dark" />
+          <button className="wechat-music-button" type="button" onClick={onOpenMusic}>
+            {mode === 'lyric' ? <QQMusicShareCard /> : <YinxinDirectCard />}
+          </button>
+        </div>
+      </main>
+
+      <WeChatInputBar />
+    </section>
+  );
+}
+
+function QQMusicShareCard({ compact = false }: { compact?: boolean }) {
+  return (
+    <article className={`qq-share-card ${compact ? 'qq-share-card--compact' : ''}`}>
+      <div className="qq-share-card__main">
+        <img src="/assets/wechat-demo/jay-cover.jpg" alt="" />
+        <div className="qq-share-card__meta">
+          <strong>开不了口</strong>
+          <span>周杰伦</span>
+        </div>
+        <span className="qq-share-card__play">
+          <Play size={30} fill="currentColor" />
+        </span>
+      </div>
+      <div className="qq-share-card__brand">
+        <span className="qq-music-mark">♪</span>
+        <b>QQ音乐</b>
+      </div>
+    </article>
+  );
+}
+
+function YinxinDirectCard({ compact = false }: { compact?: boolean }) {
+  return (
+    <article className={`yinxin-chat-card ${compact ? 'yinxin-chat-card--compact' : ''}`}>
+      <div className="yinxin-chat-card__cover">
+        <img src="/assets/wechat-demo/jay-cover.jpg" alt="" />
+        <span>音</span>
+      </div>
+      <div className="yinxin-chat-card__content">
+        <div>
+          <strong>音信 · 开不了口</strong>
+          <small>周杰伦</small>
+        </div>
+        <div className="yinxin-chat-card__wave" aria-hidden="true">
+          {Array.from({ length: 12 }, (_, index) => (
+            <i key={index} style={{ height: `${8 + (index % 4) * 5}px` }} />
+          ))}
+        </div>
+        <p>他寄来了一封音信</p>
+      </div>
+      <span className="yinxin-chat-card__action">
+        <Mail size={20} />
+      </span>
+    </article>
+  );
+}
+
+function QQMusicPlayer({
+  receiverOpening,
+  onBack,
+}: {
+  receiverOpening: boolean;
+  onBack: () => void;
+}) {
+  return (
+    <section className={`qq-player ${receiverOpening ? 'qq-player--letter-ready' : ''}`}>
+      <WeChatStatusBar dark />
+      <header className="qq-player__nav">
+        <button type="button" aria-label="返回聊天" onClick={onBack}>
+          <ChevronLeft size={29} />
+        </button>
+        <button className="qq-player__discover" type="button">
+          发现
+        </button>
+      </header>
+
+      <main className="qq-player__body">
+        <img className="qq-player__cover" src="/assets/wechat-demo/jay-cover.jpg" alt="开不了口专辑封面" />
+        <div className="qq-player__listen">
+          <span className="qq-music-mark">♪</span>
+          <span>QQ音乐</span>
+          <b>41 人在听</b>
+        </div>
+
+        <section className="qq-player__song">
+          <div>
+            <h1>开不了口</h1>
+            <p>周杰伦</p>
+          </div>
+          <div className="qq-player__stats">
+            <span><ThumbsUp size={25} />1.8万</span>
+            <span><Share2 size={25} />10万+</span>
+            <span><Heart size={26} />9.8万</span>
+          </div>
+        </section>
+
+        <div className="qq-player__progress">
+          <span className="qq-player__dot" />
+          <i />
+          <time>00:06</time>
+          <time>04:44</time>
+        </div>
+
+        <p className="qq-player__lyric">
+          {receiverOpening ? '没说出口的，都在这一句里' : '音乐播放中...'}
+        </p>
+
+        <div className="qq-player__controls">
+          <button type="button" aria-label="上一首"><SkipBack size={40} fill="currentColor" /></button>
+          <button type="button" aria-label="暂停"><Pause size={58} fill="currentColor" /></button>
+          <button type="button" aria-label="下一首"><SkipForward size={40} fill="currentColor" /></button>
+        </div>
+      </main>
+
+      <nav className="qq-player__tabs">
+        <button type="button">词</button>
+        <button type="button"><MessageCircle size={25} />1404</button>
+        <button type="button"><UserRound size={25} /></button>
+        <button type="button"><Menu size={25} /></button>
+      </nav>
+
+      {receiverOpening && <ReceiverOpeningTransition />}
+    </section>
+  );
+}
+
+function ReceiverOpeningTransition() {
+  return (
+    <div className="receiver-opening" aria-label="正在进入音信">
+      <div className="receiver-opening__note">
+        <Mail size={30} />
+      </div>
+      <span>正在进入音信</span>
+    </div>
+  );
+}
+
+function WeChatStatusBar({ dark = false }: { dark?: boolean }) {
+  return (
+    <div className={`wechat-status ${dark ? 'wechat-status--dark' : ''}`}>
+      <time>16:38</time>
+      <div aria-hidden="true">
+        <span className="wechat-signal"><i /><i /><i /><i /></span>
+        <span className="wechat-wifi" />
+        <span className="wechat-battery" />
+      </div>
+    </div>
+  );
+}
+
+function ChatBubble({ side, children }: { side: 'me' | 'other'; children: string }) {
+  return <p className={`wechat-bubble wechat-bubble--${side}`}>{children}</p>;
+}
+
+function Avatar({ tone }: { tone: 'dark' | 'light' }) {
+  return <span className={`wechat-avatar wechat-avatar--${tone}`} />;
+}
+
+function WeChatInputBar() {
+  return (
+    <footer className="wechat-inputbar">
+      <button type="button" aria-label="语音">
+        <Mic size={28} />
+      </button>
+      <div className="wechat-inputbar__field" />
+      <button type="button" aria-label="表情">
+        <Smile size={29} />
+      </button>
+      <button type="button" aria-label="更多">
+        <Plus size={30} />
+      </button>
+    </footer>
+  );
+}

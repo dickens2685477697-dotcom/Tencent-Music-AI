@@ -2,16 +2,17 @@
 
 ## Style Prompt
 
-温柔克制的产品介绍视频。画面是 4:3 横屏深色舞台，手机页面像被放在安静的展示台上，旁白文案以清晰、留白充足的方式出现。整体节奏像一封慢慢展开的音乐信件，不做过度科技感包装，不抢 `visual2` 手机稿本身的视觉表达。
+温柔克制的产品介绍视频。片头保留黑场与真实聊天画面，产品段落切换到更贴近 QQ 音乐的浅绿通透舞台：大面积留白、品牌绿强调、半透明玻璃板、唱片沟槽与音乐纹理。手机页面像被放在轻盈的产品展示台上，旁白文案清晰、留白充足，不抢 `visual2` 手机稿本身的视觉表达。
 
 ## Colors
 
-- Stage background: `#020403`
-- Stage green-black: `#07110d`
+- Opening background: `#020403`
+- Product stage: `#eef9f2`
+- Glass panel: `rgba(255, 255, 255, 0.62)`
 - QQ Music green: `#21c879`
 - Soft green: `#a7f3c7`
-- Main text: `#f5f8f6`
-- Muted text: `rgba(245, 248, 246, 0.68)`
+- Product text: `#17231d`
+- Muted product text: `rgba(23, 35, 29, 0.68)`
 
 ## Typography
 
@@ -32,5 +33,6 @@
 - Do not source UI screens from React routes, `visualdesign.html`, or `allpages.html`; use `visual2` assets only.
 - Do not use neon purple/blue AI gradients.
 - Do not crop phone screenshots in a way that hides product UI.
+- Do not return product sections to a nearly black stage.
 - Do not add busy decorative cards around the phone.
 - Do not use jump cuts between product scenes.

@@ -23,6 +23,7 @@ const COVER_IMAGES: Record<number, string> = {
   3: '/assets/song-cover-1-56586a.png',
   4: '/assets/song-cover-2-56586a.png',
   5: '/assets/song-cover-3-56586a.png',
+  6: '/assets/wechat-demo/jay-cover.jpg',
 };
 
 export function CoverArt({

@@ -8,6 +8,7 @@ import { ReceiverViewPage } from './app/routes/ReceiverViewPage';
 import { ReplyYinxinPage } from './app/routes/ReplyYinxinPage';
 import { SharePreviewPage } from './app/routes/SharePreviewPage';
 import { SentLettersPage } from './app/routes/SentLettersPage';
+import { WeChatYinxinPage } from './app/routes/WeChatYinxinPage';
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
       <Route path="/yinxin/share/:id" element={<SharePreviewPage />} />
       <Route path="/yinxin/sent" element={<SentLettersPage />} />
       <Route path="/yinxin/sent/:shareId" element={<SentLettersPage />} />
+      <Route path="/wechat-yinxin" element={<WeChatYinxinPage />} />
       <Route path="/s/:shareId" element={<ReceiverViewPage />} />
       <Route path="/s/:shareId/reply" element={<ReplyYinxinPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
