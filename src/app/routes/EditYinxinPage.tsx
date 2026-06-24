@@ -39,7 +39,6 @@ export function EditYinxinPage() {
   const lyricOptions = [selectedCandidate.primaryLyric, ...selectedCandidate.alternativeLyrics];
   const selectedIndex = lyricOptions.findIndex(l => l.segmentId === selectedLyric.segmentId);
   const safeSelectedIndex = selectedIndex >= 0 ? selectedIndex : 0;
-  const selectedLineCount = selectedLyric.text.split('\n').filter((line) => line.trim().length > 0).length;
   const voiceDuration = 30;
   const canGenerate = messageType === 'text' || hasVoiceRecording;
 
@@ -123,7 +122,7 @@ export function EditYinxinPage() {
         {/* ── 音乐预览卡片（Figma YinxinMusicCard 360×207） ── */}
         <div className="edit-music-card">
           <div className="edit-music-card__row">
-            <CoverArt index={selectedCandidate.song.coverIndex} className="edit-music-card__cover" />
+            <CoverArt index={selectedCandidate.song.coverIndex} src={selectedCandidate.song.coverUrl} className="edit-music-card__cover" />
             <div className="edit-music-card__info">
               <div className="edit-music-card__titles">
                 <strong>{selectedCandidate.song.title}</strong>
@@ -233,7 +232,6 @@ export function EditYinxinPage() {
         <section className="edit-section">
           <div className="edit-section__head">
             <label className="edit-section__label">选择歌词片段</label>
-            <span className="edit-section__meta">已选 {selectedLineCount} 句</span>
           </div>
           {/* 轮盘：仅选中项显示绿色底 */}
           <div className="lyric-wheel" ref={wheelRef} onScroll={handleLyricScroll}>

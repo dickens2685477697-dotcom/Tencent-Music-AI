@@ -3,7 +3,7 @@
     "songId": "demo_001",
     "title": "开不了口",
     "artist": "周杰伦",
-    "coverUrl": "/covers/demo_001.jpg",
+    "coverUrl": "/assets/covers/demo_001.jpg",
     "lyrics": [
       "才离开没多久就开始",
       "担心今天的你过得好不好",
@@ -55,7 +55,7 @@
     "songId": "demo_002",
     "title": "遇见",
     "artist": "孙燕姿",
-    "coverUrl": "/covers/demo_002.jpg",
+    "coverUrl": "/assets/covers/demo_002.jpg",
     "lyrics": [
       "听见 冬天 的离开",
       "我在某年某月醒过来",
@@ -90,7 +90,7 @@
     "songId": "demo_003",
     "title": "唯一",
     "artist": "告五人",
-    "coverUrl": "/covers/demo_003.jpg",
+    "coverUrl": "/assets/covers/demo_003.jpg",
     "lyrics": [
       "你真的懂唯一的定义",
       "并不简单如呼吸",

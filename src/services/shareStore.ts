@@ -31,7 +31,7 @@ const seedCards: YinxinCardData[] = [
   },
   { shareId: 'sent_friend', candidateId: allCandidates[0].candidateId, song: allCandidates[0].song, selectedLyric: allCandidates[0].primaryLyric, userMessage: '最近的夜晚总让我想起你，愿你被温柔以待，平安喜乐。', cardStyle: 'midnight', relationship: 'friend', openCount: 5, createdAt: new Date('2026-06-20T20:30:00').getTime() },
   { shareId: 'sent_lover', candidateId: allCandidates[1].candidateId, song: allCandidates[1].song, selectedLyric: allCandidates[1].primaryLyric, userMessage: '有些想念不用说得太满，这首歌会替我慢慢告诉你。', cardStyle: 'green', relationship: 'lover', openCount: 2, createdAt: new Date('2026-06-15T19:20:00').getTime() },
-  { shareId: 'sent_teacher', candidateId: allCandidates[3].candidateId, song: allCandidates[3].song, selectedLyric: allCandidates[3].primaryLyric, userMessage: '谢谢你曾经给我的鼓励，我一直都记得。', cardStyle: 'minimal', relationship: 'teacher', openCount: 12, createdAt: new Date('2026-06-10T10:10:00').getTime() },
+  { shareId: 'sent_teacher', candidateId: allCandidates[2].candidateId, song: allCandidates[2].song, selectedLyric: allCandidates[2].primaryLyric, userMessage: '谢谢你曾经给我的鼓励，我一直都记得。', cardStyle: 'minimal', relationship: 'teacher', openCount: 12, createdAt: new Date('2026-06-10T10:10:00').getTime() },
 ];
 
 const seedReplies: YinxinReplyData[] = [

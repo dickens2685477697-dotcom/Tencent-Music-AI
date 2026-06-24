@@ -5,11 +5,9 @@ import { CoverArt } from './CoverArt';
 
 export function CandidateCard({
   candidate,
-  rank,
   onSelect,
 }: {
   candidate: YinxinCandidate;
-  rank?: number;
   onSelect: () => void;
 }) {
   const player = usePlayer();
@@ -17,21 +15,17 @@ export function CandidateCard({
   const playing = player.activeId === playerId && player.state === 'playing';
   // 歌词截断约 22 字
   const lyricText = candidate.primaryLyric.text;
+  const primaryEmotionTag = candidate.emotionLabel.split('/').map((part) => part.trim()).filter(Boolean)[0] ?? candidate.emotionLabel;
 
   return (
     <article className="candidate-card" onClick={onSelect}>
 
       {/* ── 左侧封面（正方形 1:1） ── */}
       <div className="candidate-card__cover">
-        <CoverArt index={candidate.song.coverIndex} />
-
-        {rank !== undefined && (
-          <span className="candidate-card__rank">{rank}</span>
-        )}
+        <CoverArt index={candidate.song.coverIndex} src={candidate.song.coverUrl} />
 
         {/* 封面底部渐变遮罩 + 歌名 + 迷你播放 */}
         <div className="candidate-card__cover-overlay">
-          <span className="candidate-card__cover-title">{candidate.song.title}</span>
           <span className="candidate-card__mini-play" aria-hidden>
             {playing ? <Pause size={10} fill="currentColor" /> : <Play size={10} fill="currentColor" />}
           </span>
@@ -45,13 +39,13 @@ export function CandidateCard({
         <div className="candidate-card__head">
           <strong className="candidate-card__name">{candidate.song.title}</strong>
           {candidate.emotionLabel && (
-            <span className="emotion-tag">{candidate.emotionLabel}</span>
+            <span className="emotion-tag">{primaryEmotionTag}</span>
           )}
         </div>
 
-        {/* 第二行：歌手 · 专辑 */}
+        {/* 第二行：歌手 */}
         <p className="candidate-card__artist">
-          {candidate.song.artist} · {candidate.song.album}
+          {candidate.song.artist}
         </p>
 
         {/* 歌词引用 */}

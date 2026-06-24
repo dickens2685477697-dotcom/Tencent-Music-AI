@@ -25,7 +25,20 @@ export function CandidateListPage() {
     <AppShell light>
       <div className="page results-page">
         {/* Header：仅标题 + 返回，无操作按钮 */}
-        <PageHeader title="音信" backTo="/yinxin" />
+          <PageHeader
+            title="音信"
+            backTo="/yinxin"
+            action={(
+              <button
+                type="button"
+                className="rematch-btn rematch-btn--header"
+                onClick={() => { dispatch({ type: 'REGENERATE' }); navigate('/yinxin/generating'); }}
+              >
+                <RefreshCw size={12} />
+                再次匹配
+              </button>
+            )}
+          />
 
         {/* 标题区 */}
         <div className="results-hero">
@@ -34,24 +47,15 @@ export function CandidateListPage() {
           </h1>
           <div className="results-heading__sub-row">
             <p className="results-heading__subtitle">这些歌曲最能表达「想说却没说出口的话」</p>
-            {/* 再次匹配按钮：位于副标题下方 */}
-            <button
-              className="rematch-btn"
-              onClick={() => { dispatch({ type: 'REGENERATE' }); navigate('/yinxin/generating'); }}
-            >
-              <RefreshCw size={12} />
-              再次匹配
-            </button>
           </div>
         </div>
 
         {/* 卡片列表 */}
         <div className="candidate-list">
-          {candidates.map((candidate, index) => (
+          {candidates.map((candidate) => (
             <CandidateCard
               key={candidate.candidateId}
               candidate={candidate}
-              rank={index + 1}
               onSelect={() => {
                 dispatch({ type: 'SELECT_CANDIDATE', payload: candidate });
                 navigate(`/yinxin/edit/${candidate.candidateId}`);

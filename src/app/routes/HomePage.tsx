@@ -150,7 +150,7 @@ export function HomePage() {
 
         {/* 底部 5 Tab 导航 */}
         <nav className="home-nav">
-          <button className="active" onClick={() => navigate('/')}>
+          <button className="active" onClick={() => navigate('/home')}>
             <Music2 size={20} />
             首页
           </button>

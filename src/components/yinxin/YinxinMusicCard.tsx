@@ -29,7 +29,7 @@ export function YinxinMusicCard({
   return (
     <article className={letterClassName}>
       <div className="music-letter__halo" />
-      <CoverArt index={song.coverIndex} className="music-letter__cover" />
+      <CoverArt index={song.coverIndex} src={song.coverUrl} className="music-letter__cover" />
       <div className="music-letter__content">
         <p className="music-letter__lyric">“{lyric.text}”</p>
         <div className="music-letter__song">
