@@ -1,7 +1,15 @@
 import { Pause, Play } from 'lucide-react';
 import { usePlayer } from '../../context/PlayerContext';
+import { resolveSongInfo } from '../../data/songs/songCatalog';
 import type { YinxinCandidate } from '../../types/yinxin';
 import { CoverArt } from './CoverArt';
+
+function formatDuration(durationSeconds?: number) {
+  const safeSeconds = Math.max(0, durationSeconds ?? 0);
+  const minutes = Math.floor(safeSeconds / 60);
+  const seconds = safeSeconds % 60;
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
 
 export function CandidateCard({
   candidate,
@@ -13,9 +21,11 @@ export function CandidateCard({
   const player = usePlayer();
   const playerId = `candidate-${candidate.candidateId}`;
   const playing = player.activeId === playerId && player.state === 'playing';
+  const resolvedSong = resolveSongInfo(candidate.song);
   // 歌词截断约 22 字
   const lyricText = candidate.primaryLyric.text;
   const primaryEmotionTag = candidate.emotionLabel.split('/').map((part) => part.trim()).filter(Boolean)[0] ?? candidate.emotionLabel;
+  const songDuration = formatDuration(resolvedSong.durationSeconds);
 
   return (
     <article className="candidate-card" onClick={onSelect}>
@@ -65,7 +75,7 @@ export function CandidateCard({
             </svg>
             <span>音信卡片</span>
             <span className="meta-divider">|</span>
-            <span>00:30</span>
+            <span>{songDuration}</span>
           </div>
           <div className="candidate-card__actions">
             <button

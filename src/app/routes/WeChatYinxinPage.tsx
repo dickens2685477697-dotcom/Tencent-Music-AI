@@ -18,7 +18,7 @@ import {
   UserRound,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { AppShell } from '../../components/layout/AppShell';
 import { ShareCard } from '../../components/yinxin/ShareCard';
 import songsData from '../../data/songs/songs.json';
@@ -26,6 +26,11 @@ import type { LyricSegment, SongInfo } from '../../types/yinxin';
 
 type DeliveryMode = 'lyric' | 'direct';
 type ScenarioView = 'setup' | 'chat' | 'player';
+type PlayerAutoFlow = DeliveryMode | null;
+type WeChatYinxinLocationState = {
+  resumePlayer?: boolean;
+  mode?: DeliveryMode;
+};
 type WechatDemoSong = {
   songId: string;
   title: string;
@@ -35,16 +40,19 @@ type WechatDemoSong = {
 };
 
 const modeLabels: Record<DeliveryMode, string> = {
-  lyric: '藏在歌词中',
-  direct: '不隐藏',
+  lyric: '\u85cf\u5728\u6b4c\u8bcd\u4e2d',
+  direct: '\u4e0d\u9690\u85cf',
 };
 
 const wechatSongs = songsData as WechatDemoSong[];
 const currentSong = wechatSongs.find((song) => song.songId === 'demo_001') ?? wechatSongs[0];
-const currentSongTitle = currentSong?.title ?? '开不了口';
-const currentSongArtist = currentSong?.artist ?? '周杰伦';
+const currentSongTitle = currentSong?.title ?? '\u5f00\u4e0d\u4e86\u53e3';
+const currentSongArtist = currentSong?.artist ?? '\u5468\u6770\u4f26';
 const currentSongCover = currentSong?.coverUrl ?? '/assets/covers/demo_001.jpg';
-const currentSongLyric = currentSong?.lyrics.find((line) => line.includes('开不了口')) ?? currentSong?.lyrics[0] ?? '没说出口的，都在这一句里';
+const currentSongLyric =
+  currentSong?.lyrics.find((line) => line.includes('\u5f00\u4e0d\u4e86\u53e3')) ??
+  currentSong?.lyrics[0] ??
+  '\u6ca1\u8bf4\u51fa\u53e3\u7684\uff0c\u90fd\u5728\u8fd9\u4e00\u53e5\u91cc';
 
 const demoSongInfo: SongInfo = {
   songId: currentSong?.songId ?? 'demo_001',
@@ -59,30 +67,50 @@ const demoLyricSegment: LyricSegment = {
   text: currentSongLyric,
   startTime: 20,
   endTime: 26,
-  emotionTags: ['思念', '离别'],
+  emotionTags: ['\u601d\u5ff5', '\u79bb\u522b'],
 };
 
-const demoUserMessage = '到家就好。其实那句没发出去的话，我放在这封音信里了。';
+const demoUserMessage =
+  '\u5230\u5bb6\u5c31\u597d\u3002\u5176\u5b9e\u90a3\u53e5\u6ca1\u53d1\u51fa\u53bb\u7684\u8bdd\uff0c\u6211\u653e\u5728\u8fd9\u5c01\u97f3\u4fe1\u91cc\u4e86\u3002';
+const lyricTriggerMs = 2600;
+const lyricNavigateMs = 3450;
+const directNavigateMs = 220;
 
 export function WeChatYinxinPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<DeliveryMode>('lyric');
-  const [view, setView] = useState<ScenarioView>('setup');
+  const location = useLocation();
+  const routeState = (location.state as WeChatYinxinLocationState | null) ?? null;
+  const [mode, setMode] = useState<DeliveryMode>(routeState?.mode ?? 'lyric');
+  const [view, setView] = useState<ScenarioView>(routeState?.resumePlayer ? 'player' : 'setup');
   const [receiverOpening, setReceiverOpening] = useState(false);
-  const [playerRun, setPlayerRun] = useState(0);
+  const [playerAutoFlow, setPlayerAutoFlow] = useState<PlayerAutoFlow>(null);
 
   useEffect(() => {
-    if (view !== 'player') return undefined;
+    if (view !== 'player' || !playerAutoFlow) return undefined;
     setReceiverOpening(false);
-    const startTimer = window.setTimeout(() => setReceiverOpening(true), 2600);
+    if (playerAutoFlow === 'direct') {
+      const directTimer = window.setTimeout(() => {
+        setPlayerAutoFlow(null);
+        navigate('/s/wechat_demo', {
+          state: { backTo: '/wechat-yinxin', backState: { resumePlayer: true, mode: 'direct' } },
+        });
+      }, directNavigateMs);
+      return () => {
+        window.clearTimeout(directTimer);
+      };
+    }
+    const startTimer = window.setTimeout(() => setReceiverOpening(true), lyricTriggerMs);
     const navigateTimer = window.setTimeout(() => {
-      navigate('/s/wechat_demo', { state: { backTo: '/wechat-yinxin' } });
-    }, 3450);
+      setPlayerAutoFlow(null);
+      navigate('/s/wechat_demo', {
+        state: { backTo: '/wechat-yinxin', backState: { resumePlayer: true, mode: 'lyric' } },
+      });
+    }, lyricNavigateMs);
     return () => {
       window.clearTimeout(startTimer);
       window.clearTimeout(navigateTimer);
     };
-  }, [navigate, view, playerRun]);
+  }, [navigate, playerAutoFlow, view]);
 
   const enterChat = () => {
     setReceiverOpening(false);
@@ -90,16 +118,8 @@ export function WeChatYinxinPage() {
   };
 
   const openMusic = () => {
-    if (mode === 'lyric') {
-      setView('player');
-      setPlayerRun((current) => current + 1);
-      return;
-    }
-    openLetter();
-  };
-
-  const openLetter = () => {
-    navigate('/s/wechat_demo', { state: { backTo: '/wechat-yinxin' } });
+    setView('player');
+    setPlayerAutoFlow(mode);
   };
 
   return (
@@ -143,14 +163,14 @@ function ModeSetup({
     <section className="wechat-setup">
       <WeChatStatusBar />
       <header className="wechat-setup__header">
-        <strong>他</strong>
+        <strong>{'\u4ed6'}</strong>
         <MoreHorizontal size={24} />
       </header>
 
       <div className="wechat-setup__body">
-        <div className="wechat-setup__avatar">他</div>
-        <h1>呈现方式</h1>
-        <div className="wechat-mode-grid" role="radiogroup" aria-label="选择音信呈现方式">
+        <div className="wechat-setup__avatar">{'\u4ed6'}</div>
+        <h1>{'\u5448\u73b0\u65b9\u5f0f'}</h1>
+        <div className="wechat-mode-grid" role="radiogroup" aria-label={'\u9009\u62e9\u97f3\u4fe1\u5448\u73b0\u65b9\u5f0f'}>
           <button
             className={`wechat-mode-card ${mode === 'lyric' ? 'wechat-mode-card--active' : ''}`}
             type="button"
@@ -160,7 +180,7 @@ function ModeSetup({
           >
             <Music2 size={19} />
             <span>{modeLabels.lyric}</span>
-            <small>QQ音乐分享卡</small>
+            <small>{'QQ\u97f3\u4e50\u5206\u4eab\u5361'}</small>
           </button>
           <button
             className={`wechat-mode-card ${mode === 'direct' ? 'wechat-mode-card--active' : ''}`}
@@ -171,20 +191,20 @@ function ModeSetup({
           >
             <Mail size={19} />
             <span>{modeLabels.direct}</span>
-            <small>音信专属卡</small>
+            <small>{'\u97f3\u4fe1\u4e13\u5c5e\u5361'}</small>
           </button>
         </div>
 
         <div className="wechat-setup-preview" aria-hidden="true">
-          <ChatBubble side="other">到家了吗？</ChatBubble>
-          <ChatBubble side="me">到家啦～</ChatBubble>
+          <ChatBubble side="other">{'\u5230\u5bb6\u4e86\u5417\uff1f'}</ChatBubble>
+          <ChatBubble side="me">{'\u5230\u5bb6\u5566\uff5e'}</ChatBubble>
           {mode === 'lyric' ? <QQMusicShareCard compact /> : <ShareCard song={demoSongInfo} lyric={demoLyricSegment} message={demoUserMessage} />}
         </div>
       </div>
 
       <footer className="wechat-setup__footer">
         <button className="wechat-enter-button" type="button" onClick={onEnter}>
-          进入聊天
+          {'\u8fdb\u5165\u804a\u5929'}
         </button>
       </footer>
     </section>
@@ -204,11 +224,11 @@ function ChatScreen({
     <section className="wechat-chat">
       <WeChatStatusBar />
       <header className="wechat-chat__nav">
-        <button type="button" aria-label="返回模式设置" onClick={onBack}>
+        <button type="button" aria-label={'\u8fd4\u56de\u6a21\u5f0f\u8bbe\u7f6e'} onClick={onBack}>
           <ChevronLeft size={30} />
         </button>
-        <strong>他</strong>
-        <button type="button" aria-label="更多">
+        <strong>{'\u4ed6'}</strong>
+        <button type="button" aria-label={'\u66f4\u591a'}>
           <MoreHorizontal size={24} />
         </button>
       </header>
@@ -216,10 +236,10 @@ function ChatScreen({
       <main className="wechat-chat__messages">
         <div className="wechat-message-row wechat-message-row--other">
           <Avatar tone="dark" />
-          <ChatBubble side="other">到家了吗？</ChatBubble>
+          <ChatBubble side="other">{'\u5230\u5bb6\u4e86\u5417\uff1f'}</ChatBubble>
         </div>
         <div className="wechat-message-row wechat-message-row--me">
-          <ChatBubble side="me">到家啦～</ChatBubble>
+          <ChatBubble side="me">{'\u5230\u5bb6\u5566\uff5e'}</ChatBubble>
           <Avatar tone="light" />
         </div>
         <div className="wechat-message-row wechat-message-row--other wechat-message-row--music">
@@ -239,7 +259,7 @@ function QQMusicShareCard({ compact = false }: { compact?: boolean }) {
   return (
     <article className={`qq-share-card ${compact ? 'qq-share-card--compact' : ''}`}>
       <div className="qq-share-card__main">
-        <img src={currentSongCover} alt={`${currentSongTitle}封面`} />
+        <img src={currentSongCover} alt={`${currentSongTitle}\u5c01\u9762`} />
         <div className="qq-share-card__meta">
           <strong>{currentSongTitle}</strong>
           <span>{currentSongArtist}</span>
@@ -249,7 +269,7 @@ function QQMusicShareCard({ compact = false }: { compact?: boolean }) {
         </span>
       </div>
       <div className="qq-share-card__brand">
-        <img src="/assets/qqmusic-logo-1b43a7.png" alt="QQ音乐" />
+        <img src="/assets/qqmusic-logo-1b43a7.png" alt={'QQ\u97f3\u4e50'} />
       </div>
     </article>
   );
@@ -259,12 +279,12 @@ function YinxinDirectCard({ compact = false }: { compact?: boolean }) {
   return (
     <article className={`yinxin-chat-card ${compact ? 'yinxin-chat-card--compact' : ''}`}>
       <div className="yinxin-chat-card__cover">
-        <img src={currentSongCover} alt={`${currentSongTitle}封面`} />
-        <span>音</span>
+        <img src={currentSongCover} alt={`${currentSongTitle}\u5c01\u9762`} />
+        <span>{'\u97f3'}</span>
       </div>
       <div className="yinxin-chat-card__content">
         <div>
-          <strong>音信 · {currentSongTitle}</strong>
+          <strong>{`\u97f3\u4fe1 \u00b7 ${currentSongTitle}`}</strong>
           <small>{currentSongArtist}</small>
         </div>
         <div className="yinxin-chat-card__wave" aria-hidden="true">
@@ -272,7 +292,7 @@ function YinxinDirectCard({ compact = false }: { compact?: boolean }) {
             <i key={index} style={{ height: `${8 + (index % 4) * 5}px` }} />
           ))}
         </div>
-        <p>他寄来了一封音信</p>
+        <p>{'\u4ed6\u5bc4\u6765\u4e86\u4e00\u5c01\u97f3\u4fe1'}</p>
       </div>
       <span className="yinxin-chat-card__action">
         <Mail size={20} />
@@ -292,20 +312,20 @@ function QQMusicPlayer({
     <section className={`qq-player ${receiverOpening ? 'qq-player--letter-ready' : ''}`}>
       <WeChatStatusBar dark />
       <header className="qq-player__nav">
-        <button type="button" aria-label="返回聊天" onClick={onBack}>
+        <button type="button" aria-label={'\u8fd4\u56de\u804a\u5929'} onClick={onBack}>
           <ChevronLeft size={29} />
         </button>
         <button className="qq-player__discover" type="button">
-          发现
+          {'\u53d1\u73b0'}
         </button>
       </header>
 
       <main className="qq-player__body">
-        <img className="qq-player__cover" src={currentSongCover} alt={`${currentSongTitle}专辑封面`} />
+        <img className="qq-player__cover" src={currentSongCover} alt={`${currentSongTitle}\u4e13\u8f91\u5c01\u9762`} />
         <div className="qq-player__listen">
-          <span className="qq-music-mark">♪</span>
-          <span>QQ音乐</span>
-          <b>41 人在听</b>
+          <span className="qq-music-mark">{'\u266a'}</span>
+          <span>{'QQ\u97f3\u4e50'}</span>
+          <b>{'41 \u4eba\u5728\u542c'}</b>
         </div>
 
         <section className="qq-player__song">
@@ -314,9 +334,9 @@ function QQMusicPlayer({
             <p>{currentSongArtist}</p>
           </div>
           <div className="qq-player__stats">
-            <span><ThumbsUp size={25} />1.8万</span>
-            <span><Share2 size={25} />10万+</span>
-            <span><Heart size={26} />9.8万</span>
+            <span><ThumbsUp size={25} />{'1.8\u4e07'}</span>
+            <span><Share2 size={25} />{'10\u4e07+'}</span>
+            <span><Heart size={26} />{'9.8\u4e07'}</span>
           </div>
         </section>
 
@@ -328,18 +348,18 @@ function QQMusicPlayer({
         </div>
 
         <p className="qq-player__lyric">
-          {receiverOpening ? currentSongLyric : '音乐播放中...'}
+          {receiverOpening ? currentSongLyric : '\u97f3\u4e50\u64ad\u653e\u4e2d...'}
         </p>
 
         <div className="qq-player__controls">
-          <button type="button" aria-label="上一首"><SkipBack size={40} fill="currentColor" /></button>
-          <button type="button" aria-label="暂停"><Pause size={58} fill="currentColor" /></button>
-          <button type="button" aria-label="下一首"><SkipForward size={40} fill="currentColor" /></button>
+          <button type="button" aria-label={'\u4e0a\u4e00\u9996'}><SkipBack size={40} fill="currentColor" /></button>
+          <button type="button" aria-label={'\u6682\u505c'}><Pause size={58} fill="currentColor" /></button>
+          <button type="button" aria-label={'\u4e0b\u4e00\u9996'}><SkipForward size={40} fill="currentColor" /></button>
         </div>
       </main>
 
       <nav className="qq-player__tabs">
-        <button type="button">词</button>
+        <button type="button">{'\u8bcd'}</button>
         <button type="button"><MessageCircle size={25} />1404</button>
         <button type="button"><UserRound size={25} /></button>
         <button type="button"><Menu size={25} /></button>
@@ -352,11 +372,11 @@ function QQMusicPlayer({
 
 function ReceiverOpeningTransition() {
   return (
-    <div className="receiver-opening" aria-label="正在进入音信">
+    <div className="receiver-opening" aria-label={'\u6b63\u5728\u8fdb\u5165\u97f3\u4fe1'}>
       <div className="receiver-opening__note">
         <Mail size={30} />
       </div>
-      <span>正在进入音信</span>
+      <span>{'\u6b63\u5728\u8fdb\u5165\u97f3\u4fe1'}</span>
     </div>
   );
 }
@@ -385,14 +405,14 @@ function Avatar({ tone }: { tone: 'dark' | 'light' }) {
 function WeChatInputBar() {
   return (
     <footer className="wechat-inputbar">
-      <button type="button" aria-label="语音">
+      <button type="button" aria-label={'\u8bed\u97f3'}>
         <Mic size={28} />
       </button>
       <div className="wechat-inputbar__field" />
-      <button type="button" aria-label="表情">
+      <button type="button" aria-label={'\u8868\u60c5'}>
         <Smile size={29} />
       </button>
-      <button type="button" aria-label="更多">
+      <button type="button" aria-label={'\u66f4\u591a'}>
         <Plus size={30} />
       </button>
     </footer>

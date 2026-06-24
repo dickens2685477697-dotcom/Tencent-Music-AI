@@ -69,6 +69,7 @@ export const allCandidates: YinxinCandidate[] = songSeeds.map((song, index) => {
       album: song.album ?? '未提供专辑',
       coverUrl: normalizeCoverUrl(song.coverUrl),
       coverIndex: index,
+      durationSeconds: song.durationSeconds,
     },
     primaryLyric: segments[0],
     alternativeLyrics: segments.slice(1),

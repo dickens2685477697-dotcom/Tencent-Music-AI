@@ -67,9 +67,9 @@ export function ShareCard({ song, lyric, message }: ShareCardProps) {
 
             {/* 歌词行：大引号 + 歌词文本 */}
             <div className="ysc__lyric-row">
-              <span className="ysc__q" aria-hidden>"</span>
+              <span className="ysc__q" aria-hidden>“</span>
               <p className="ysc__lyric-text">{lyric.text}</p>
-              <span className="ysc__q ysc__q--close" aria-hidden>"</span>
+              <span className="ysc__q ysc__q--close" aria-hidden>”</span>
             </div>
 
             {/* 信息行：歌名 + 歌手 + 播放按钮 */}
@@ -92,8 +92,8 @@ export function ShareCard({ song, lyric, message }: ShareCardProps) {
       {/* 底部品牌条：左对齐（同 QQ 音乐品牌条方式） */}
       <div className="ysc__foot">
         <img
-          src="/assets/share-card/share-card-brand.png"
-          alt="音信"
+          src="/assets/qqmusic-logo-1b43a7.png"
+          alt="QQ音乐"
           className="ysc__brand-img"
         />
       </div>

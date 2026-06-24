@@ -3,11 +3,13 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppShell } from '../../components/layout/AppShell';
 import { PageHeader } from '../../components/layout/PageHeader';
-import { CoverArt } from '../../components/yinxin/CoverArt';
+import { ReceivedYinxinCard } from '../../components/yinxin/ReceivedYinxinCard';
 import { ShareCard } from '../../components/yinxin/ShareCard';
 import { Toast } from '../../components/yinxin/Toast';
 import { WireframeModal } from '../../components/yinxin/WireframeModal';
 import { copyShareLink, getYinxinCard } from '../../services/shareStore';
+
+const PACKING_TOTAL_MS = 2800;
 
 export function SharePreviewPage() {
   const { id = 'demo' } = useParams();
@@ -18,7 +20,7 @@ export function SharePreviewPage() {
   const [shareTarget, setShareTarget] = useState<'wechat' | 'qq' | 'more' | null>(null);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setPacked(true), 1800);
+    const timer = window.setTimeout(() => setPacked(true), PACKING_TOTAL_MS);
     return () => window.clearTimeout(timer);
   }, []);
 
@@ -40,7 +42,7 @@ export function SharePreviewPage() {
           <p>{packed ? '用音乐，把心意送给 TA' : '把歌和想说的话，一起装进信封'}</p>
         </div>
 
-        {/* 主视觉：信封 + 黑胶 + 音乐信息卡 + 彩屑 */}
+        {/* 主视觉：信封 + 音乐信息卡 + 彩屑 */}
         <div className={`packing-scene ${packed ? 'packing-scene--packed' : 'packing-scene--packing'}`}>
           {/* 彩屑 */}
           <span className="confetti cf1" />
@@ -52,43 +54,29 @@ export function SharePreviewPage() {
 
           {/* 信封 */}
           <div className="envelope-wrap">
-            <div className="envelope-back" />
-            <div className="envelope-pocket-shadow" />
-            {/* 音乐信息卡：放在信封前后层之间，形成插入效果 */}
-            <div className="packing-card">
-              <div className="packing-card__cover">
-                <CoverArt index={card.song.coverIndex} src={card.song.coverUrl} className="cover-art" />
-              </div>
-              <div className="packing-card__info">
-                <b>{card.song.title}</b>
-                <small>{card.song.artist} · {card.song.album}</small>
-                <p className="packing-card__lyric">
-                  <i>"</i>{card.selectedLyric.text}<i>"</i>
-                </p>
-              </div>
-            </div>
-            <div className="envelope-front-left" />
-            <div className="envelope-front-right" />
             <img
-              className="envelope-front-overlay"
-              src="/assets/figma-envelope/envelope-intersect-18e725.png"
+              className="envelope-layer envelope-layer--back"
+              src="/assets/qq-envelope/qq-envelope-back.png"
               alt=""
               aria-hidden
             />
-            <span className="envelope-wave" aria-hidden>
-              <svg width="52" height="24" viewBox="0 0 52 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-                <path d="M2 12c4-8 8-8 12 0s8 8 12 0 8-8 12 0s8 8 12 0" />
-              </svg>
-            </span>
-            <div className="envelope-seal">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round">
-                <path d="M9 17V6l9-2v11" /><circle cx="6.5" cy="17" r="2.2" fill="white" stroke="none" /><circle cx="15.5" cy="15" r="2.2" fill="white" stroke="none" />
-              </svg>
-            </div>
+            {/* 音乐信息卡：放在信封前后层之间，形成插入效果 */}
+            <ReceivedYinxinCard
+              song={card.song}
+              lyric={card.selectedLyric}
+              messageType={card.messageType}
+              message={card.userMessage}
+              voiceDuration={card.voiceDuration}
+              hideMessageInLyric={card.hideMessageInLyric}
+              senderLabel="微信用户"
+            />
+            <img
+              className="envelope-layer envelope-layer--front"
+              src="/assets/qq-envelope/qq-envelope-front.png"
+              alt=""
+              aria-hidden
+            />
           </div>
-
-          {/* 黑胶唱片 */}
-          <div className="packing-vinyl" />
         </div>
 
         {/* 进度 / 打包完成后的分享操作 */}
@@ -127,16 +115,6 @@ export function SharePreviewPage() {
 
         {/* 底部行动 */}
         <div className="share-cta">
-          <button
-            className="share-btn-solid"
-            disabled={!packed}
-            onClick={() => navigate(`/s/${id}`)}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <rect x="3" y="7" width="18" height="13" rx="2" /><path d="m3 9 9 6 9-6" />
-            </svg>
-            模拟接收者打开
-          </button>
           <button
             className="share-btn-ghost"
             disabled={!packed}

@@ -23,6 +23,7 @@ export interface SongInfo {
   album?: string;
   coverUrl: string;
   coverIndex: number;
+  durationSeconds?: number;
   audioPreviewUrl?: string;
 }
 

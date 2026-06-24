@@ -5,8 +5,8 @@ import { AppShell } from '../../components/layout/AppShell';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { CoverArt } from '../../components/yinxin/CoverArt';
 import { MockAudioPlayer } from '../../components/yinxin/MockAudioPlayer';
+import { ReceivedYinxinCard } from '../../components/yinxin/ReceivedYinxinCard';
 import { WireframeModal } from '../../components/yinxin/WireframeModal';
-import { YinxinMusicCard } from '../../components/yinxin/YinxinMusicCard';
 import { usePlayer } from '../../context/PlayerContext';
 import { useYinxin } from '../../context/YinxinContext';
 import { createShareId, saveReply, saveYinxinCard } from '../../services/shareStore';
@@ -14,6 +14,7 @@ import type { LyricSegment, YinxinMessageType } from '../../types/yinxin';
 
 export function EditYinxinPage() {
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewEnvelopeOpened, setPreviewEnvelopeOpened] = useState(false);
   const [messageType, setMessageType] = useState<YinxinMessageType>('text');
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
   const [hasVoiceRecording, setHasVoiceRecording] = useState(false);
@@ -41,10 +42,20 @@ export function EditYinxinPage() {
   const safeSelectedIndex = selectedIndex >= 0 ? selectedIndex : 0;
   const voiceDuration = 30;
   const canGenerate = messageType === 'text' || hasVoiceRecording;
+  const lyricDisplayText = selectedLyric.text.replace(/[ \u3000]+/g, '\n');
 
   useEffect(() => {
     if (wheelRef.current) wheelRef.current.scrollTop = safeSelectedIndex * 56;
   }, [safeSelectedIndex]);
+
+  useEffect(() => {
+    if (!previewOpen) {
+      setPreviewEnvelopeOpened(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setPreviewEnvelopeOpened(true), 180);
+    return () => window.clearTimeout(timer);
+  }, [previewOpen]);
 
   const selectLyric = (lyric: LyricSegment) => {
     if (lyric.segmentId === selectedLyric.segmentId) return;
@@ -105,6 +116,11 @@ export function EditYinxinPage() {
     navigate(`/yinxin/share/${shareId}`);
   };
 
+  const replayPreviewEnvelope = () => {
+    setPreviewEnvelopeOpened(false);
+    window.setTimeout(() => setPreviewEnvelopeOpened(true), 100);
+  };
+
   return (
     <AppShell>
       <div className="page edit-page">
@@ -124,9 +140,20 @@ export function EditYinxinPage() {
           <div className="edit-music-card__row">
             <CoverArt index={selectedCandidate.song.coverIndex} src={selectedCandidate.song.coverUrl} className="edit-music-card__cover" />
             <div className="edit-music-card__info">
-              <div className="edit-music-card__titles">
+              <div className="edit-music-card__title-line">
                 <strong>{selectedCandidate.song.title}</strong>
                 <span>{selectedCandidate.song.artist}</span>
+              </div>
+              <div className="edit-music-card__lyric-block">
+                <span className="edit-music-card__badge">
+                  <i aria-hidden>♪</i>
+                  最佳匹配歌词
+                </span>
+                <div className="edit-music-card__lyric-row">
+                  <span className="emc-q" aria-hidden>“</span>
+                  <p className="emc-lyric">{lyricDisplayText}</p>
+                  <span className="emc-q emc-q--close" aria-hidden>”</span>
+                </div>
               </div>
             </div>
           </div>
@@ -264,16 +291,37 @@ export function EditYinxinPage() {
 
         {previewOpen && (
           <WireframeModal title="音信预览" onClose={() => setPreviewOpen(false)}>
-            <YinxinMusicCard
-              song={selectedCandidate.song}
-              lyric={selectedLyric}
-              message={cardCopy}
-              messageType={messageType}
-              hideMessageInLyric={hideMessageInLyric}
-              voiceDuration={voiceDuration}
-              style={cardStyle}
-              interactive={false}
-            />
+            <div className="preview-envelope-scene">
+              <div className="receiver-envelope receiver-envelope--preview">
+                <img
+                  className="receiver-envelope__layer receiver-envelope__layer--back"
+                  src="/assets/qq-envelope/qq-envelope-back.png"
+                  alt=""
+                  aria-hidden
+                />
+                <div className={`receiver-envelope__card-wrap ${previewEnvelopeOpened ? 'receiver-envelope__card-wrap--opened' : ''}`}>
+                  <div className={`receiver-envelope__card-inner ${previewEnvelopeOpened ? 'receiver-envelope__card-inner--opened' : ''}`}>
+                    <ReceivedYinxinCard
+                      song={selectedCandidate.song}
+                      lyric={selectedLyric}
+                      message={cardCopy}
+                      messageType={messageType}
+                      hideMessageInLyric={hideMessageInLyric}
+                      voiceDuration={voiceDuration}
+                    />
+                  </div>
+                </div>
+                <img
+                  className="receiver-envelope__layer receiver-envelope__layer--front"
+                  src="/assets/qq-envelope/qq-envelope-front.png"
+                  alt=""
+                  aria-hidden
+                />
+              </div>
+              <button type="button" className="text-button preview-envelope-replay" onClick={replayPreviewEnvelope}>
+                重播动效
+              </button>
+            </div>
           </WireframeModal>
         )}
       </div>

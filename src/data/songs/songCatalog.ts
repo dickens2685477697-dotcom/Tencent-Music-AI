@@ -7,6 +7,7 @@ type SongCatalogItem = {
   artist: string;
   album?: string;
   coverUrl: string;
+  durationSeconds?: number;
 };
 
 const songCatalog = songsData as SongCatalogItem[];
@@ -23,5 +24,6 @@ export function resolveSongInfo(song: SongInfo): SongInfo {
     artist: matched.artist,
     album: matched.album ?? song.album,
     coverUrl: matched.coverUrl || song.coverUrl,
+    durationSeconds: matched.durationSeconds ?? song.durationSeconds,
   };
 }
