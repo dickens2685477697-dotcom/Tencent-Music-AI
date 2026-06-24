@@ -15,7 +15,7 @@ export function ReceiverViewPage() {
   const [toast, setToast] = useState('');
   const notify = (message: string) => { setToast(message); window.setTimeout(() => setToast(''), 1600); };
   return (
-    <AppShell>
+    <AppShell light>
       <div className="page receiver-page">
         {backTo && (
           <button className="receiver-back" aria-label="返回我寄出的音信" onClick={() => navigate(backTo)}>

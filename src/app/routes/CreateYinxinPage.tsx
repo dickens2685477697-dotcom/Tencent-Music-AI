@@ -59,7 +59,7 @@ export function CreateYinxinPage() {
 
         {/* Hero 区：Figma 背景图 + 标题 */}
         <div className="create-hero">
-          <PageHeader title="音信" backTo="/" />
+          <PageHeader title="音信" backTo="/home" />
           <div className="create-hero__content">
             <span className="create-hero__quote">&ldquo;</span>
             <h1>有什么话，<br />想让歌替你说？</h1>

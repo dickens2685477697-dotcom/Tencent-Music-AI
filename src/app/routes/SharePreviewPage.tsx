@@ -72,7 +72,7 @@ export function SharePreviewPage() {
           {/* 音乐信息卡 */}
           <div className="packing-card">
             <div className="packing-card__cover">
-              <CoverArt index={card.song.coverIndex} className="cover-art" />
+              <CoverArt index={card.song.coverIndex} src={card.song.coverUrl} className="cover-art" />
             </div>
             <div className="packing-card__info">
               <b>{card.song.title}</b>

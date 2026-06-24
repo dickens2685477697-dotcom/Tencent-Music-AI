@@ -37,7 +37,7 @@ function SentListCard({ card, selected, onSelect }: { card: YinxinCardData; sele
   const replies = getReplies(card.shareId);
   return (
     <button className={`sent-list-card ${selected ? 'active' : ''}`} onClick={onSelect}>
-      <CoverArt index={card.song.coverIndex} className="sent-list-card__cover" />
+      <CoverArt index={card.song.coverIndex} src={card.song.coverUrl} className="sent-list-card__cover" />
       <div className="sent-list-card__body">
         <small>寄给{relationshipLabel(card.relationship)}</small>
         <strong>{card.song.title}</strong>
@@ -85,7 +85,7 @@ function ReplyItem({
       {musicCard
         ? (
           <div className="sent-reply-music">
-            <CoverArt index={musicCard.song.coverIndex} className="sent-reply-music__cover" />
+            <CoverArt index={musicCard.song.coverIndex} src={musicCard.song.coverUrl} className="sent-reply-music__cover" />
             <div>
               <strong>{musicCard.song.title}</strong>
               <span>歌词：{musicCard.selectedLyric.text}</span>
@@ -184,7 +184,7 @@ export function SentLettersPage() {
 
         {/* 顶部导航 */}
         <header className="sent-page__header">
-          <button className="sent-header-back" onClick={() => isDetailPage ? navigate('/yinxin/sent') : navigate('/')}>
+          <button className="sent-header-back" onClick={() => isDetailPage ? navigate('/yinxin/sent') : navigate('/home')}>
             <ArrowLeft size={20} />
           </button>
           <strong>我寄出的音信</strong>
@@ -243,7 +243,7 @@ export function SentLettersPage() {
                   <time>{formatDate(selected.createdAt)}</time>
                 </header>
                 <div className="sent-detail-letter__main">
-                  <CoverArt index={selected.song.coverIndex} className="sent-detail-cover" />
+                  <CoverArt index={selected.song.coverIndex} src={selected.song.coverUrl} className="sent-detail-cover" />
                   <div>
                     <h1>{selected.song.title}</h1>
                     <p>歌词：{selected.selectedLyric.text}</p>

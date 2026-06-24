@@ -59,7 +59,7 @@ export function ReplyYinxinPage() {
 
         {/* 原始音信卡片 */}
         <div className="reply-source">
-          <CoverArt index={card.song.coverIndex} className="reply-source__cover" />
+          <CoverArt index={card.song.coverIndex} src={card.song.coverUrl} className="reply-source__cover" />
           <div className="reply-source__info">
             <small>回复这封音信</small>
             <strong>"{card.selectedLyric.text}"</strong>
