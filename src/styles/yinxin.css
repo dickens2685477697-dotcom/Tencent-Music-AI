@@ -826,8 +826,8 @@ textarea::placeholder { color: #929292; }
 
 /* 页面整体 */
 .edit-page {
-  min-height: auto;
-  padding-bottom: 12px;
+  min-height: 100%;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
   background: linear-gradient(180deg, #E6F6F0 0%, #fff 11%);
   align-items: center;
   display: flex;
@@ -1575,8 +1575,18 @@ textarea::placeholder { color: #929292; }
 .packing-status { margin: 0 26px; text-align: center; }
 .packing-status p { font-size: 13px; color: #8c9898; margin-bottom: 10px; }
 .packing-bar { height: 5px; border-radius: 999px; background: #dceee4; overflow: hidden; }
-.packing-bar-fill { display: block; height: 100%; background: linear-gradient(90deg, #1ec178, #43d795); border-radius: 999px; animation: packprog 1.8s ease-in-out infinite alternate; }
-@keyframes packprog { from { width: 45%; } to { width: 78%; } }
+.packing-bar-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #1ec178, #43d795);
+  border-radius: 999px;
+  animation: packprog 2.8s linear forwards;
+}
+@keyframes packprog {
+  from { width: 0; }
+  to { width: 100%; }
+}
 
 /* 打包完成后分享操作 */
 .share-actions { opacity: 0; pointer-events: none; display: grid; grid-template-columns: repeat(4,1fr); margin: 16px 20px 0; transition: opacity .35s ease; }

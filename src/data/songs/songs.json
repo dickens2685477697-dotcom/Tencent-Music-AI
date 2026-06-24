@@ -4,6 +4,7 @@
     "title": "开不了口",
     "artist": "周杰伦",
     "coverUrl": "/assets/covers/demo_001.jpg",
+    "bestMatchLyric": "就是开不了口 让她知道",
     "lyrics": [
       "才离开没多久就开始",
       "担心今天的你过得好不好",
@@ -56,6 +57,7 @@
     "title": "遇见",
     "artist": "孙燕姿",
     "coverUrl": "/assets/covers/demo_002.jpg",
+    "bestMatchLyric": "我排着队 拿着爱的号码牌",
     "lyrics": [
       "听见 冬天 的离开",
       "我在某年某月醒过来",
@@ -91,6 +93,7 @@
     "title": "唯一",
     "artist": "告五人",
     "coverUrl": "/assets/covers/demo_003.jpg",
+    "bestMatchLyric": "你真的懂唯一的定义",
     "lyrics": [
       "你真的懂唯一的定义",
       "并不简单如呼吸",

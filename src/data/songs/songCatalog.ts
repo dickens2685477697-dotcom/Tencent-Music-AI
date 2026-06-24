@@ -7,6 +7,8 @@ type SongCatalogItem = {
   artist: string;
   album?: string;
   coverUrl: string;
+  bestMatchLyric?: string;
+  lyrics?: string[];
   durationSeconds?: number;
 };
 
@@ -26,4 +28,16 @@ export function resolveSongInfo(song: SongInfo): SongInfo {
     coverUrl: matched.coverUrl || song.coverUrl,
     durationSeconds: matched.durationSeconds ?? song.durationSeconds,
   };
+}
+
+export function resolveBestMatchLyric(song: SongInfo): string | undefined {
+  const matched = songCatalog.find((item) => item.songId === song.songId)
+    ?? songCatalog.find((item) => item.title === song.title && item.artist === song.artist);
+  if (!matched) return undefined;
+  if (matched.bestMatchLyric?.trim()) return matched.bestMatchLyric.trim();
+  if (matched.lyrics?.length) {
+    const firstLine = matched.lyrics.find((line) => line.trim().length > 0);
+    return firstLine?.trim();
+  }
+  return undefined;
 }

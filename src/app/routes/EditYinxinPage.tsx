@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppShell } from '../../components/layout/AppShell';
 import { PageHeader } from '../../components/layout/PageHeader';
+import { resolveBestMatchLyric } from '../../data/songs/songCatalog';
 import { CoverArt } from '../../components/yinxin/CoverArt';
 import { MockAudioPlayer } from '../../components/yinxin/MockAudioPlayer';
 import { ReceivedYinxinCard } from '../../components/yinxin/ReceivedYinxinCard';
@@ -27,7 +28,7 @@ export function EditYinxinPage() {
 
   if (!selectedCandidate || !selectedLyric) {
     return (
-      <AppShell>
+      <AppShell light>
         <div className="page empty-page">
           <PageHeader title="编辑音信" backTo="/yinxin/results" />
           <h1>先选一首歌</h1>
@@ -42,7 +43,8 @@ export function EditYinxinPage() {
   const safeSelectedIndex = selectedIndex >= 0 ? selectedIndex : 0;
   const voiceDuration = 30;
   const canGenerate = messageType === 'text' || hasVoiceRecording;
-  const lyricDisplayText = selectedLyric.text.replace(/[ \u3000]+/g, '\n');
+  const bestMatchLyricText = resolveBestMatchLyric(selectedCandidate.song) ?? selectedCandidate.primaryLyric.text;
+  const lyricDisplayText = bestMatchLyricText.replace(/[ \u3000]+/g, '\n');
 
   useEffect(() => {
     if (wheelRef.current) wheelRef.current.scrollTop = safeSelectedIndex * 56;
@@ -122,7 +124,7 @@ export function EditYinxinPage() {
   };
 
   return (
-    <AppShell>
+    <AppShell light>
       <div className="page edit-page">
         {/* Header：无操作按钮 */}
         <PageHeader

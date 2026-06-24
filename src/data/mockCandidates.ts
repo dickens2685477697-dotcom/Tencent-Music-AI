@@ -7,6 +7,7 @@ type SongSeed = {
   artist: string;
   album?: string;
   coverUrl: string;
+  bestMatchLyric?: string;
   lyrics: string[];
   tags?: string[];
   durationSeconds?: number;
@@ -19,12 +20,6 @@ const reasons: Record<Scene, string> = {
   encourage: '像一次不打扰的陪伴，温柔地告诉对方可以慢慢来。',
   thanks: '它把感谢写得轻盈，不会让认真显得过分隆重。',
   mixed: '这段表达没有急着定义情绪，适合那些暂时说不清的话。',
-};
-
-const preferredPrimaryLyricBySongId: Record<string, string> = {
-  demo_001: '就是开不了口',
-  demo_002: '我排着队 拿着爱的号码牌',
-  demo_003: '唯一的定义',
 };
 
 function normalizeCoverUrl(url: string) {
@@ -43,7 +38,7 @@ const songSeeds = songsData as SongSeed[];
 export const allCandidates: YinxinCandidate[] = songSeeds.map((song, index) => {
   const emotionTags = song.tags?.length ? song.tags : ['共鸣'];
   const allLines = cleanLyrics(song.lyrics);
-  const preferredPrimaryLyric = preferredPrimaryLyricBySongId[song.songId];
+  const preferredPrimaryLyric = song.bestMatchLyric;
   const preferredIndex = preferredPrimaryLyric
     ? allLines.findIndex((line) => line === preferredPrimaryLyric || line.includes(preferredPrimaryLyric))
     : -1;

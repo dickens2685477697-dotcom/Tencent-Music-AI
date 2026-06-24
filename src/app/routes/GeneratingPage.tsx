@@ -41,6 +41,7 @@ export function GeneratingPage() {
   const [params] = useSearchParams();
   const [error, setError] = useState<'error' | 'empty'>();
   const [matchProgress, setMatchProgress] = useState(0);
+  const mockScenario = (params.get('mock') ?? 'success') as MockScenario;
   // 轨道标签与上一页选择保持一致，避免出现固定文案与用户选择不对应。
   const orbitTags = [
     { label: relationshipLabels[draft.relationship], r: 108, dur: 14, delay: 0 },
@@ -53,7 +54,15 @@ export function GeneratingPage() {
     if (!draft.message.trim()) { navigate('/yinxin', { replace: true }); return; }
     setError(undefined);
     setMatchProgress(0);
-    const scenario = (params.get('mock') ?? 'success') as MockScenario;
+    const draftSnapshot = {
+      message: draft.message,
+      relationship: draft.relationship,
+      scene: draft.scene,
+      tone: draft.tone,
+      createdAt: draft.createdAt,
+      mode: draft.mode,
+      replyToShareId: draft.replyToShareId,
+    };
     let cancelled = false;
     const progressTimer = window.setInterval(() => {
       setMatchProgress((current) => {
@@ -63,7 +72,7 @@ export function GeneratingPage() {
       });
     }, 120);
 
-    generateYinxinCandidates(draft, { scenario, generation })
+    generateYinxinCandidates(draftSnapshot, { scenario: mockScenario, generation })
       .then((candidates) => {
         if (cancelled) return;
         if (!candidates.length) { setError('empty'); return; }
@@ -81,7 +90,19 @@ export function GeneratingPage() {
       cancelled = true;
       window.clearInterval(progressTimer);
     };
-  }, [dispatch, draft, generation, navigate, params]);
+  }, [
+    dispatch,
+    draft.createdAt,
+    draft.message,
+    draft.mode,
+    draft.relationship,
+    draft.replyToShareId,
+    draft.scene,
+    draft.tone,
+    generation,
+    mockScenario,
+    navigate,
+  ]);
 
   const retry = () => {
     dispatch({ type: 'REGENERATE' });
