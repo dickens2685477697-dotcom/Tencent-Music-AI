@@ -10,13 +10,7 @@ import { YinxinMusicCard } from '../../components/yinxin/YinxinMusicCard';
 import { usePlayer } from '../../context/PlayerContext';
 import { useYinxin } from '../../context/YinxinContext';
 import { createShareId, saveReply, saveYinxinCard } from '../../services/shareStore';
-import type { CardStyle, LyricSegment, YinxinMessageType } from '../../types/yinxin';
-
-const STYLES: { value: CardStyle; label: string; icon: string }[] = [
-  { value: 'midnight', label: '午夜耳语', icon: '☾' },
-  { value: 'green',    label: '绿色唱片', icon: '◉' },
-  { value: 'minimal',  label: '极简留白', icon: '〰' },
-];
+import type { LyricSegment, YinxinMessageType } from '../../types/yinxin';
 
 export function EditYinxinPage() {
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -45,6 +39,7 @@ export function EditYinxinPage() {
   const lyricOptions = [selectedCandidate.primaryLyric, ...selectedCandidate.alternativeLyrics];
   const selectedIndex = lyricOptions.findIndex(l => l.segmentId === selectedLyric.segmentId);
   const safeSelectedIndex = selectedIndex >= 0 ? selectedIndex : 0;
+  const selectedLineCount = selectedLyric.text.split('\n').filter((line) => line.trim().length > 0).length;
   const voiceDuration = 30;
   const canGenerate = messageType === 'text' || hasVoiceRecording;
 
@@ -115,7 +110,15 @@ export function EditYinxinPage() {
     <AppShell>
       <div className="page edit-page">
         {/* Header：无操作按钮 */}
-        <PageHeader title="编辑音信" backTo="/yinxin/results" />
+        <PageHeader
+          title="编辑音信"
+          backTo="/yinxin/results"
+          action={(
+            <button type="button" className="edit-preview-btn" onClick={() => setPreviewOpen(true)}>
+              预览
+            </button>
+          )}
+        />
 
         {/* ── 音乐预览卡片（Figma YinxinMusicCard 360×207） ── */}
         <div className="edit-music-card">
@@ -228,11 +231,12 @@ export function EditYinxinPage() {
 
         {/* ── 选择歌词片段（iOS 轮盘样式） ── */}
         <section className="edit-section">
-          <label className="edit-section__label">选择歌词片段</label>
-          {/* 轮盘：高亮条随选中项平滑滑动，歌词从顶部开始 */}
+          <div className="edit-section__head">
+            <label className="edit-section__label">选择歌词片段</label>
+            <span className="edit-section__meta">已选 {selectedLineCount} 句</span>
+          </div>
+          {/* 轮盘：仅选中项显示绿色底 */}
           <div className="lyric-wheel" ref={wheelRef} onScroll={handleLyricScroll}>
-            {/* 高亮条：跟随选中索引位置 */}
-            <div className="lyric-wheel__bar" />
             {lyricOptions.map((lyric, i) => {
               const dist = Math.abs(i - safeSelectedIndex);
               const isActive = lyric.segmentId === selectedLyric.segmentId;
@@ -255,29 +259,6 @@ export function EditYinxinPage() {
                 </button>
               );
             })}
-          </div>
-        </section>
-
-        {/* ── 选择视觉风格 ── */}
-        <section className="edit-section">
-          <label className="edit-section__label">选择视觉风格</label>
-          <div className="style-options">
-            {STYLES.map((s) => (
-              <button
-                key={s.value}
-                className={`style-option style-option--${s.value} ${cardStyle === s.value ? 'active' : ''}`}
-                onClick={() => dispatch({ type: 'SET_STYLE', payload: s.value })}
-                aria-pressed={cardStyle === s.value}
-              >
-                <i>{s.icon}</i>
-                <span>{s.label}</span>
-                {cardStyle === s.value && (
-                  <span className="style-option__badge" aria-hidden>
-                    <Check size={8} strokeWidth={3} />
-                  </span>
-                )}
-              </button>
-            ))}
           </div>
         </section>
 

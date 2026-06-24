@@ -6,22 +6,47 @@ import { AppShell } from '../../components/layout/AppShell';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { useYinxin } from '../../context/YinxinContext';
 import { generateYinxinCandidates } from '../../services/yinxinApi';
+import type { Relationship, Scene, Tone } from '../../types/yinxin';
 import type { MockScenario } from '../../types/yinxin';
 
-// 5 个标签：轨道半径 + 动画时长 + 起始延迟（秒，负值=提前开始）
-const orbitTags = [
-  { label: '治愈',  r: 108, dur: 14, delay: 0     },
-  { label: '思念',  r: 120, dur: 11, delay: -2.2  },
-  { label: '温柔',  r: 112, dur: 16, delay: -6.4  },
-  { label: '释怀',  r: 106, dur: 12, delay: -8.6  },
-  { label: '成长',  r: 116, dur: 18, delay: -12.9 },
-];
+const relationshipLabels: Record<Relationship, string> = {
+  friend: '朋友',
+  lover: '恋人',
+  family: '家人',
+  teacher: '老师',
+  self: '自己',
+  other: '其他',
+};
+
+const sceneLabels: Record<Scene, string> = {
+  miss: '想念',
+  apology: '道歉',
+  farewell: '告别',
+  encourage: '鼓励',
+  thanks: '感谢',
+  mixed: '说不清',
+};
+
+const toneLabels: Record<Tone, string> = {
+  gentle: '温柔',
+  restrained: '克制',
+  sincere: '真诚',
+  light: '轻松',
+  poetic: '文艺',
+};
 
 export function GeneratingPage() {
   const { draft, generation, dispatch } = useYinxin();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const [error, setError] = useState<'error' | 'empty'>();
+  // 轨道标签与上一页选择保持一致，避免出现固定文案与用户选择不对应。
+  const orbitTags = [
+    { label: relationshipLabels[draft.relationship], r: 108, dur: 14, delay: 0 },
+    { label: sceneLabels[draft.scene], r: 120, dur: 11, delay: -2.2 },
+    { label: toneLabels[draft.tone], r: 112, dur: 16, delay: -6.4 },
+    { label: '共鸣', r: 116, dur: 18, delay: -12.9 },
+  ];
 
   useEffect(() => {
     if (!draft.message.trim()) { navigate('/yinxin', { replace: true }); return; }
