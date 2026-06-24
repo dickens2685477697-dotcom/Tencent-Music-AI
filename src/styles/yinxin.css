@@ -36,7 +36,7 @@
 /* 音信 特性卡 */
 .feature-entry { position: relative; overflow: hidden; width: calc(100% - 40px); margin: 0 20px; min-height: 182px; display: flex; align-items: flex-start; text-align: left; padding: 20px 24px; background: url('/assets/feature-card-bg.png') center/cover no-repeat, linear-gradient(135deg, #b8e8ca 0%, #cdefd9 40%, #def5e7 100%); border-radius: 16px; color: #20262a; border: none; cursor: pointer; }
 .feature-entry__copy { position: relative; z-index: 2; flex: 1; }
-.feature-entry__copy strong { font-family: "PingFang SC", "HarmonyOS Sans SC", sans-serif; font-size: 32px; font-weight: 600; line-height: 1.25; color: #2B322E; }
+.feature-entry__copy strong { font-family: "HarmonyOS Sans SC", sans-serif; font-size: 32px; font-weight: 600; line-height: 1.25; color: #2B322E; }
 .feature-entry__copy p { margin: 8px 0 24px; color: rgba(36,36,36,0.8); font-size: 14px; line-height: 1.6; }
 .feature-entry__copy span { display: inline-flex; align-items: center; gap: 8px; padding: 4px 14px; color: #fff; background: #33D08D; border-radius: var(--radius-pill); font-size: 14px; font-weight: 500; box-shadow: 0 4px 16px rgba(51,208,141,.35); }
 .feature-entry__visual { display: none; }
@@ -97,7 +97,7 @@
 /* 引号（大） */
 .create-hero__quote {
   display: block;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: "HarmonyOS Sans SC", sans-serif;
   font-size: 60px;
   font-weight: 700;
   line-height: 40px;
@@ -634,7 +634,7 @@ textarea::placeholder { color: #929292; }
 }
 .cq-open {
   font-size: 18px;
-  font-family: Georgia, serif;
+  font-family: "HarmonyOS Sans SC", sans-serif;
   color: #21C879;
   line-height: 18px;
   margin-right: 1px;
@@ -642,7 +642,7 @@ textarea::placeholder { color: #929292; }
 }
 .cq-close {
   font-size: 14px;
-  font-family: Georgia, serif;
+  font-family: "HarmonyOS Sans SC", sans-serif;
   color: #21C879;
   margin-left: 1px;
 }
@@ -747,7 +747,7 @@ textarea::placeholder { color: #929292; }
 .music-letter__halo { position: absolute; z-index: -1; width: 230px; height: 230px; right: -70px; top: -70px; border-radius: 50%; background: rgba(57,230,128,.12); filter: blur(28px); }
 .music-letter__cover { width: 132px; height: 132px; border-radius: 18px; box-shadow: 14px 12px 0 -3px #080a09, 26px 12px 0 -4px #232925; }
 .music-letter__content { padding-top: 20px; }
-.music-letter__lyric { max-width: 285px; font-family: "Songti SC", "STSong", serif; font-size: 22px; line-height: 1.52; letter-spacing: .03em; }
+.music-letter__lyric { max-width: 285px; font-family: "HarmonyOS Sans SC", sans-serif; font-size: 22px; line-height: 1.52; letter-spacing: .03em; }
 .music-letter__song { display: flex; align-items: baseline; gap: 7px; margin-top: 12px; }
 .music-letter__song strong { font-size: 12px; }.music-letter__song span { color: var(--muted); font-size: 10px; }
 .music-letter--minimal .music-letter__song span, .music-letter--minimal .music-letter__message { color: rgba(20,18,16,.58); }
@@ -818,7 +818,7 @@ textarea::placeholder { color: #929292; }
 .music-letter--minimal .music-letter__message--voice > span { color: rgba(20,18,16,.58); }
 .mock-player--static .player-button { opacity: .7; }
 .voice-dot { display: block; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
-.music-letter__from { display: block; margin-top: 13px; color: var(--brand); font-family: cursive; text-align: right; }
+.music-letter__from { display: block; margin-top: 13px; color: var(--brand); font-family: "HarmonyOS Sans SC", sans-serif; text-align: right; }
 
 /* ══════════════════════════════════════════
    编辑音信页（Figma 37-1519 精确还原）
@@ -911,7 +911,7 @@ textarea::placeholder { color: #929292; }
 }
 .emc-q {
   font-size: 40px;
-  font-family: Georgia, serif;
+  font-family: "HarmonyOS Sans SC", sans-serif;
   line-height: 25px;
   color: #21C879;
   flex: none;
@@ -1241,7 +1241,7 @@ textarea::placeholder { color: #929292; }
 .style-option--midnight { background: #182144; color: #fff; }
 .style-option--green    { background: #17482D; color: #fff; }
 .style-option--minimal  { background: #E6DDCB; color: #201E1A; }
-.style-option i  { font-family: serif; font-size: 25px; font-style: normal; }
+.style-option i  { font-family: "HarmonyOS Sans SC", sans-serif; font-size: 25px; font-style: normal; }
 .style-option span { font-size: 9px; }
 .style-option.active { border-color: #21C879; }
 .style-option__badge {
@@ -1329,7 +1329,7 @@ textarea::placeholder { color: #929292; }
 .packing-card__info b { display: block; font-size: 15px; font-weight: 700; color: #20262a; }
 .packing-card__info small { display: block; margin-top: 3px; font-size: 11px; color: #9aa0a6; }
 .packing-card__lyric { margin-top: 8px; font-size: 12px; line-height: 1.55; color: #45504a; }
-.packing-card__lyric i { color: #b7d8c6; font-style: normal; font-family: Georgia, serif; font-size: 14px; }
+.packing-card__lyric i { color: #b7d8c6; font-style: normal; font-family: "HarmonyOS Sans SC", sans-serif; font-size: 14px; }
 
 /* 打包进度 */
 .packing-status { margin: 0 26px; text-align: center; }
@@ -1376,12 +1376,12 @@ textarea::placeholder { color: #929292; }
 }
 .receiver-heading { padding: 56px 0 20px; }
 .receiver-spark { color: #21C879; font-size: 20px; }
-.receiver-heading h1 { margin-top: 10px; font-family: "Songti SC", serif; font-size: 26px; font-weight: 500; color: #20262A; }
+.receiver-heading h1 { margin-top: 10px; font-family: "HarmonyOS Sans SC", sans-serif; font-size: 26px; font-weight: 500; color: #20262A; }
 .receiver-heading p { margin-top: 8px; color: #7D8A83; font-size: 13px; }
 .receiver-envelope { position: relative; padding-bottom: 12px; }
 .receiver-envelope .music-letter { text-align: left; min-height: 360px; }
 .receiver-envelope .music-letter--concealed { min-height: 330px; }
-.receiver-envelope__seal { position: absolute; right: 0; bottom: 0; width: 44px; height: 44px; display: grid; place-items: center; color: #1A2A1E; background: #bd9b5b; border: 3px double #725928; border-radius: 50%; font-family: "Songti SC", serif; font-size: 16px; }
+.receiver-envelope__seal { position: absolute; right: 0; bottom: 0; width: 44px; height: 44px; display: grid; place-items: center; color: #1A2A1E; background: #bd9b5b; border: 3px double #725928; border-radius: 50%; font-family: "HarmonyOS Sans SC", sans-serif; font-size: 16px; }
 
 .receiver-actions { margin-top: 18px; }
 .receiver-page .primary-button { width: 100%; height: 52px; border-radius: 999px; background: linear-gradient(100deg, #14B46A, #3DD88A); box-shadow: 0 12px 28px rgba(33,200,121,.32); color: #fff; font-size: 16px; font-weight: 700; border: none; cursor: pointer; }
@@ -1530,7 +1530,7 @@ textarea::placeholder { color: #929292; }
   border-radius: 3.6px;
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
-  font-family: "HarmonyOS Sans SC", "PingFang SC", sans-serif;
+  font-family: "HarmonyOS Sans SC", sans-serif;
 }
 
 /* 主体区：88px 高，背景为模糊封面图 */
@@ -1540,13 +1540,11 @@ textarea::placeholder { color: #929292; }
   overflow: hidden;
 }
 
-/* 模糊背景层 */
+/* 背景层：Figma 导出背景图，全出血覆盖 */
 .ysc__bg {
   position: absolute;
-  inset: -4px;
-  background-size: cover;
-  background-position: center;
-  filter: blur(7px) brightness(0.7) saturate(1.2);
+  inset: 0;
+  background: url('/assets/share-card/share-card-bg.png') center / cover no-repeat;
 }
 
 /* 内容行：水平排列，居中对齐 */
@@ -1597,7 +1595,7 @@ textarea::placeholder { color: #929292; }
   overflow: hidden;
 }
 
-/* "音信" 徽章：细边框、浅绿字 */
+/* "音信" 徽章：0.2px 细描边 #00B274，7px 圆角，padding 1px 3px 1px 2px */
 .ysc__badge {
   display: inline-flex;
   align-items: center;
@@ -1606,57 +1604,77 @@ textarea::placeholder { color: #929292; }
   border: 0.2px solid #00B274;
   border-radius: 7px;
   color: #25AF7E;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", sans-serif;
   font-size: 6px;
+  font-weight: 400;
   white-space: nowrap;
+  flex: none;
+  line-height: 1;
+}
+
+/* 徽章内 logo 图标：9×9 */
+.ysc__badge-icon {
+  width: 9px;
+  height: 9px;
+  object-fit: contain;
+  display: block;
   flex: none;
 }
 
-/* 歌词预览（截断） */
+/* 歌词预览：6px Regular #737D84 */
 .ysc__preview {
   display: flex;
   align-items: center;
-  color: #737D84;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", sans-serif;
   font-size: 6px;
+  font-weight: 400;
+  color: #737D84;
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+/* 分隔点：6px Regular #737D84，letterSpacing 0.066em */
 .ysc__sep {
   flex: none;
-  margin-right: 1px;
+  font-size: 6px;
+  letter-spacing: 0.066em;
+  color: #737D84;
 }
 
-/* 歌词行：高 30px，引号 + 文本 + 引号 */
+/* 歌词行：高 30px，水平居中，gap 1.8px */
 .ysc__lyric-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 1.8px;
   height: 30px;
   overflow: hidden;
 }
 
-/* 大引号：24px Medium 绿色，行高 15px */
+/* 大引号：HarmonyOS Sans SC Medium 500，24px，lineHeight 15px，letterSpacing 0.0165em，#21C879 */
 .ysc__q {
+  font-family: "HarmonyOS Sans SC", "PingFang SC", sans-serif;
   font-weight: 500;
   font-size: 24px;
   line-height: 15px;
   letter-spacing: 0.0165em;
   color: #21C879;
   flex: none;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  align-self: flex-start;
 }
 .ysc__q--close {
   align-self: flex-end;
 }
 
-/* 歌词文本：10px Regular，双行截断 */
+/* 歌词正文：HarmonyOS Sans SC Regular 400，10px，lineHeight 15px，letterSpacing 0.0396em，#20262A */
 .ysc__lyric-text {
+  font-family: "HarmonyOS Sans SC", "PingFang SC", sans-serif;
   font-size: 10px;
+  font-weight: 400;
   line-height: 15px;
   letter-spacing: 0.0396em;
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  color: #20262A;
   flex: 1;
   overflow: hidden;
   display: -webkit-box;
@@ -1665,7 +1683,7 @@ textarea::placeholder { color: #929292; }
   margin: 0;
 }
 
-/* 信息行：歌名 + 歌手 + 播放钮 */
+/* 信息行：歌名 + 歌手 + 播放钮，space-between */
 .ysc__meta {
   display: flex;
   align-items: center;
@@ -1679,11 +1697,12 @@ textarea::placeholder { color: #929292; }
   min-width: 0;
 }
 
+/* 歌名：HarmonyOS Sans SC Regular 400，8px，letterSpacing 0.0495em，#20262A */
 .ysc__song-info strong {
+  font-family: "HarmonyOS Sans SC", "PingFang SC", sans-serif;
   font-size: 8px;
   font-weight: 400;
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  color: #20262A;
   letter-spacing: 0.0495em;
   line-height: 1.3;
   white-space: nowrap;
@@ -1691,9 +1710,12 @@ textarea::placeholder { color: #929292; }
   text-overflow: ellipsis;
 }
 
+/* 歌手：HarmonyOS Sans SC Regular 400，6px，letterSpacing 0.066em，#737D84 */
 .ysc__song-info small {
+  font-family: "HarmonyOS Sans SC", "PingFang SC", sans-serif;
   font-size: 6px;
-  color: rgba(255, 255, 255, 0.72);
+  font-weight: 400;
+  color: #737D84;
   letter-spacing: 0.066em;
   line-height: 1.3;
   white-space: nowrap;
@@ -1715,22 +1737,23 @@ textarea::placeholder { color: #929292; }
   cursor: pointer;
 }
 
-/* 底部品牌条：11px 高 */
+/* 底部品牌条：11px 高，Figma 导出品牌图 */
 .ysc__foot {
   height: 11px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding: 0 8px;
+  padding: 0 6px;
   background: #fff;
   border-top: 0.5px solid rgba(33, 200, 121, 0.12);
+  overflow: hidden;
 }
 
-.ysc__foot span {
-  font-size: 5px;
-  color: #9AA0A6;
-  letter-spacing: 0.05em;
-  line-height: 1;
+.ysc__brand-img {
+  height: 7px;
+  width: auto;
+  object-fit: contain;
+  display: block;
 }
 
 /* 分享弹窗内卡片居中展示 */
@@ -1769,7 +1792,7 @@ textarea::placeholder { color: #929292; }
   overflow: hidden;
   color: #111;
   background: #ededed;
-  font-family: "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
 }
 
 .wechat-status {
@@ -2058,33 +2081,35 @@ textarea::placeholder { color: #929292; }
 }
 
 .qq-share-card {
-  width: 314px;
+  width: 240px;
+  height: 100px;
   overflow: hidden;
   background: transparent;
-  border-radius: 12px;
+  border-radius: 6px;
   border: 0;
   box-shadow: none;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 .qq-share-card__main {
-  min-height: 86px;
+  height: 78px;
   display: grid;
-  grid-template-columns: 86px 1fr 38px;
+  grid-template-columns: 78px 1fr 30px;
   align-items: center;
   background: #B78178;
-  border-radius: 12px;
+  border-radius: 6px;
   overflow: hidden;
 }
 .qq-share-card__main img {
-  width: 86px;
-  height: 86px;
+  width: 78px;
+  height: 78px;
   object-fit: cover;
 }
 .qq-share-card__meta {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 0 10px 0 14px;
+  gap: 4px;
+  padding: 0 8px 0 10px;
 }
 .qq-share-card__meta strong,
 .qq-share-card__meta span {
@@ -2092,11 +2117,11 @@ textarea::placeholder { color: #929292; }
   text-overflow: ellipsis;
   white-space: nowrap;
   color: #fff;
-  font-size: 17px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 600;
   line-height: 1.1;
 }
-.qq-share-card__meta span { font-weight: 700; }
+.qq-share-card__meta span { font-weight: 500; }
 .qq-share-card__play {
   width: 100%;
   height: 100%;
@@ -2106,18 +2131,19 @@ textarea::placeholder { color: #929292; }
   padding-right: 4px;
 }
 .qq-share-card__play-icon {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
 }
 .qq-share-card__brand {
-  height: 28px;
+  height: 22px;
   display: flex;
   align-items: center;
-  padding: 0 2px 0 8px;
+  padding: 0 2px 0 6px;
   color: #9CA3AF;
   background: transparent;
+  font-family: inherit;
 }
-.qq-share-card__brand img { height: 20px; width: auto; object-fit: contain; }
+.qq-share-card__brand img { height: 15px; width: auto; object-fit: contain; }
 .qq-music-mark {
   width: 18px;
   height: 18px;
@@ -2130,29 +2156,30 @@ textarea::placeholder { color: #929292; }
   font-weight: 900;
 }
 .qq-share-card--compact {
-  width: 240px;
-  transform: scale(.9);
-  transform-origin: left top;
-  margin-bottom: -14px;
+  width: 216px;
+  height: 90px;
+  margin-bottom: -6px;
 }
 .qq-share-card--compact .qq-share-card__main {
-  min-height: 66px;
-  grid-template-columns: 66px 1fr 26px;
+  height: 70px;
+  grid-template-columns: 70px 1fr 24px;
   border-radius: 6px;
 }
 .qq-share-card--compact .qq-share-card__main img {
-  width: 66px;
-  height: 66px;
+  width: 70px;
+  height: 70px;
 }
 .qq-share-card--compact .qq-share-card__meta {
-  gap: 4px;
-  padding: 0 8px 0 9px;
+  gap: 3px;
+  padding: 0 7px 0 8px;
 }
 .qq-share-card--compact .qq-share-card__meta strong,
-.qq-share-card--compact .qq-share-card__meta span { font-size: 12px; }
-.qq-share-card--compact .qq-share-card__brand { height: 22px; padding: 0 2px 0 6px; }
-.qq-share-card--compact .qq-share-card__brand img { height: 16px; }
-.qq-share-card--compact .qq-share-card__play-icon { width: 14px; height: 14px; }
+.qq-share-card--compact .qq-share-card__meta span { font-size: 11px; }
+.qq-share-card--compact .qq-share-card__meta strong { font-weight: 600; }
+.qq-share-card--compact .qq-share-card__meta span { font-weight: 500; }
+.qq-share-card--compact .qq-share-card__brand { height: 20px; padding: 0 2px 0 5px; }
+.qq-share-card--compact .qq-share-card__brand img { height: 13px; }
+.qq-share-card--compact .qq-share-card__play-icon { width: 12px; height: 12px; }
 
 .yinxin-chat-card {
   position: relative;

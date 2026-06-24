@@ -1,3 +1,47 @@
+/* ── HarmonyOS Sans SC 字体加载 ── */
+@font-face {
+  font-family: "HarmonyOS Sans SC";
+  src: url("/fonts/HARMONYOS_SANS_SC_THIN.TTF") format("truetype");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "HarmonyOS Sans SC";
+  src: url("/fonts/HARMONYOS_SANS_SC_LIGHT.TTF") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "HarmonyOS Sans SC";
+  src: url("/fonts/HARMONYOS_SANS_SC_REGULAR.TTF") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "HarmonyOS Sans SC";
+  src: url("/fonts/HARMONYOS_SANS_SC_MEDIUM.TTF") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "HarmonyOS Sans SC";
+  src: url("/fonts/HARMONYOS_SANS_SC_BOLD.TTF") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "HarmonyOS Sans SC";
+  src: url("/fonts/HARMONYOS_SANS_SC_BLACK.TTF") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 * { box-sizing: border-box; }
 html, body, #root { min-height: 100%; margin: 0; }
 body { background: #020403; color: var(--text); }

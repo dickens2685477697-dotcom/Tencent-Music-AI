@@ -8,13 +8,9 @@ export function ShareCard({ song, lyric }: { song: SongInfo; lyric: LyricSegment
 
   return (
     <div className="ysc">
-      {/* 主体：背景模糊封面 + 内容 */}
+      {/* 主体：Figma 导出背景图 */}
       <div className="ysc__main">
-        <div
-          className="ysc__bg"
-          style={{ backgroundImage: `url(${displaySong.coverUrl})` }}
-          aria-hidden
-        />
+        <div className="ysc__bg" aria-hidden />
         <div className="ysc__row">
           {/* 左：专辑封面 */}
           <div className="ysc__cover-wrap">
@@ -30,11 +26,12 @@ export function ShareCard({ song, lyric }: { song: SongInfo; lyric: LyricSegment
             {/* 品牌行：音信徽章 + 歌词预览 */}
             <div className="ysc__brand-row">
               <span className="ysc__badge">
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" aria-hidden>
-                  <path d="M9 17V6l9-2v11" stroke="#25AF7E" strokeWidth="2.5" strokeLinecap="round" />
-                  <circle cx="6.5" cy="17" r="2.5" fill="#25AF7E" />
-                  <circle cx="15.5" cy="15" r="2.5" fill="#25AF7E" />
-                </svg>
+                <img
+                  src="/assets/share-card/yinxin-badge-icon.png"
+                  alt=""
+                  className="ysc__badge-icon"
+                  aria-hidden
+                />
                 <span>音信</span>
               </span>
               <div className="ysc__preview">
@@ -66,9 +63,13 @@ export function ShareCard({ song, lyric }: { song: SongInfo; lyric: LyricSegment
         </div>
       </div>
 
-      {/* 底部品牌条 */}
+      {/* 底部品牌条：Figma 导出品牌图 */}
       <div className="ysc__foot">
-        <span>由&nbsp;音信&nbsp;创作</span>
+        <img
+          src="/assets/share-card/share-card-brand.png"
+          alt="音信"
+          className="ysc__brand-img"
+        />
       </div>
     </div>
   );

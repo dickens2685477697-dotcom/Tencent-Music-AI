@@ -14,7 +14,7 @@
   --black: #111;
   --danger: #333;
   --shadow-card: none;
-  font-family: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
 * { box-shadow: none !important; text-shadow: none !important; }
