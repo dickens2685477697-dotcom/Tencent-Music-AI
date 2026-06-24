@@ -22,14 +22,18 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AppShell } from '../../components/layout/AppShell';
 import { ShareCard } from '../../components/yinxin/ShareCard';
 import songsData from '../../data/songs/songs.json';
+import songsUnreferencedData from '../../data/songs/songs.unreferenced.json';
 import type { LyricSegment, SongInfo } from '../../types/yinxin';
 
 type DeliveryMode = 'lyric' | 'direct';
 type ScenarioView = 'setup' | 'chat' | 'player';
 type PlayerAutoFlow = DeliveryMode | null;
+type ChatPerspective = 'self' | 'peer';
 type WeChatYinxinLocationState = {
   resumePlayer?: boolean;
   mode?: DeliveryMode;
+  view?: 'setup' | 'chat';
+  perspective?: ChatPerspective;
 };
 type WechatDemoSong = {
   songId: string;
@@ -37,6 +41,8 @@ type WechatDemoSong = {
   artist: string;
   coverUrl: string;
   lyrics: string[];
+  bestMatchLyric?: string;
+  durationSeconds?: number;
 };
 
 const modeLabels: Record<DeliveryMode, string> = {
@@ -45,7 +51,9 @@ const modeLabels: Record<DeliveryMode, string> = {
 };
 
 const wechatSongs = songsData as WechatDemoSong[];
+const unreferencedSongs = songsUnreferencedData as WechatDemoSong[];
 const currentSong = wechatSongs.find((song) => song.songId === 'demo_001') ?? wechatSongs[0];
+const directCardSong = unreferencedSongs[0] ?? currentSong;
 const currentSongTitle = currentSong?.title ?? '\u5f00\u4e0d\u4e86\u53e3';
 const currentSongArtist = currentSong?.artist ?? '\u5468\u6770\u4f26';
 const currentSongCover = currentSong?.coverUrl ?? '/assets/covers/demo_001.jpg';
@@ -69,6 +77,29 @@ const demoLyricSegment: LyricSegment = {
   endTime: 26,
   emotionTags: ['\u601d\u5ff5', '\u79bb\u522b'],
 };
+const directCardLyricRaw =
+  directCardSong?.bestMatchLyric ??
+  directCardSong?.lyrics?.[0] ??
+  '\u6211\u53d1\u73b0\u4e00\u9996\u5f88\u597d\u542c\u7684\u6b4c';
+const directCardLyric = directCardLyricRaw.startsWith('???')
+  ? '???\n?????'
+  : directCardLyricRaw;
+const directCardSongInfo: SongInfo = {
+  songId: directCardSong?.songId ?? 'hold_001',
+  title: directCardSong?.title ?? '\u559c\u6b22\u4f60',
+  artist: directCardSong?.artist ?? '\u9093\u7d2b\u68cb',
+  coverUrl: directCardSong?.coverUrl ?? '/assets/covers/hold_001.jpg',
+  coverIndex: 0,
+  durationSeconds: directCardSong?.durationSeconds,
+};
+const directCardLyricSegment: LyricSegment = {
+  segmentId: `${directCardSongInfo.songId}_wechat_direct`,
+  text: directCardLyric,
+  startTime: 0,
+  endTime: 8,
+  emotionTags: ['\u5fc3\u52a8'],
+};
+const directCardMessage = '\u5176\u5b9e\u6211\u4e5f';
 
 const demoUserMessage =
   '\u5230\u5bb6\u5c31\u597d\u3002\u5176\u5b9e\u90a3\u53e5\u6ca1\u53d1\u51fa\u53bb\u7684\u8bdd\uff0c\u6211\u653e\u5728\u8fd9\u5c01\u97f3\u4fe1\u91cc\u4e86\u3002';
@@ -77,15 +108,21 @@ const lyricNavigateMs = 3450;
 const directNavigateMs = 220;
 const heAvatarSrc = '/assets/wechat-he-avatar.png';
 const meAvatarSrc = '/assets/wechat-me-avatar.png';
+const directCardShareId = 'wechat_demo_hold_001';
 
 export function WeChatYinxinPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const routeState = (location.state as WeChatYinxinLocationState | null) ?? null;
   const [mode, setMode] = useState<DeliveryMode>(routeState?.mode ?? 'lyric');
-  const [view, setView] = useState<ScenarioView>(routeState?.resumePlayer ? 'player' : 'setup');
+  const [view, setView] = useState<ScenarioView>(
+    routeState?.view ?? (routeState?.resumePlayer ? 'player' : 'setup'),
+  );
   const [receiverOpening, setReceiverOpening] = useState(false);
   const [playerAutoFlow, setPlayerAutoFlow] = useState<PlayerAutoFlow>(null);
+  const [chatPerspective, setChatPerspective] = useState<ChatPerspective>(routeState?.perspective ?? 'self');
+  const [peerCardVisible, setPeerCardVisible] = useState(false);
+  const [peerFollowupVisible, setPeerFollowupVisible] = useState(false);
 
   useEffect(() => {
     if (view !== 'player' || !playerAutoFlow) return undefined;
@@ -114,8 +151,25 @@ export function WeChatYinxinPage() {
     };
   }, [navigate, playerAutoFlow, view]);
 
+  useEffect(() => {
+    if (view !== 'chat' || chatPerspective !== 'peer') {
+      setPeerCardVisible(false);
+      setPeerFollowupVisible(false);
+      return undefined;
+    }
+    setPeerCardVisible(false);
+    setPeerFollowupVisible(false);
+    const cardTimer = window.setTimeout(() => setPeerCardVisible(true), 5000);
+    const followupTimer = window.setTimeout(() => setPeerFollowupVisible(true), 6200);
+    return () => {
+      window.clearTimeout(cardTimer);
+      window.clearTimeout(followupTimer);
+    };
+  }, [chatPerspective, view]);
+
   const enterChat = () => {
     setReceiverOpening(false);
+    setChatPerspective('self');
     setView('chat');
   };
 
@@ -124,14 +178,38 @@ export function WeChatYinxinPage() {
     setPlayerAutoFlow(mode);
   };
 
+  const switchToPeerPerspective = () => {
+    setReceiverOpening(false);
+    setChatPerspective('peer');
+    setView('chat');
+  };
+
+  const openPeerDirectCard = () => {
+    navigate(`/s/${directCardShareId}`, {
+      state: {
+        backTo: '/wechat-yinxin',
+        backState: { mode: 'direct', view: 'chat', perspective: 'peer' },
+      },
+    });
+  };
+
   return (
     <AppShell light>
       <div className={`wechat-demo wechat-demo--${view}`}>
         {view === 'setup' ? (
-          <ModeSetup mode={mode} onModeChange={setMode} onEnter={enterChat} />
+          <ModeSetup
+            mode={mode}
+            onModeChange={setMode}
+            onEnter={enterChat}
+            onSwitchPerspective={switchToPeerPerspective}
+          />
         ) : view === 'chat' ? (
           <ChatScreen
             mode={mode}
+            perspective={chatPerspective}
+            peerCardVisible={peerCardVisible}
+            peerFollowupVisible={peerFollowupVisible}
+            onOpenPeerCard={openPeerDirectCard}
             onBack={() => {
               setReceiverOpening(false);
               setView('setup');
@@ -156,10 +234,12 @@ function ModeSetup({
   mode,
   onModeChange,
   onEnter,
+  onSwitchPerspective,
 }: {
   mode: DeliveryMode;
   onModeChange: (mode: DeliveryMode) => void;
   onEnter: () => void;
+  onSwitchPerspective: () => void;
 }) {
   return (
     <section className="wechat-setup">
@@ -201,12 +281,16 @@ function ModeSetup({
           <ChatBubble side="other">{'\u5230\u5bb6\u4e86\u5417\uff1f'}</ChatBubble>
           <ChatBubble side="me">{'\u5230\u5bb6\u5566\uff5e'}</ChatBubble>
           {mode === 'lyric' ? <QQMusicShareCard compact /> : <ShareCard song={demoSongInfo} lyric={demoLyricSegment} message={demoUserMessage} />}
+          <ChatBubble side="other">{'\u6211\u53d1\u73b0\u4e00\u9996\u5f88\u597d\u542c\u7684\u6b4c'}</ChatBubble>
         </div>
       </div>
 
       <footer className="wechat-setup__footer">
         <button className="wechat-enter-button" type="button" onClick={onEnter}>
           {'\u8fdb\u5165\u804a\u5929'}
+        </button>
+        <button className="wechat-switch-perspective" type="button" onClick={onSwitchPerspective}>
+          {'\u5207\u6362\u5230\u5bf9\u65b9\u89c6\u89d2'}
         </button>
       </footer>
     </section>
@@ -215,13 +299,59 @@ function ModeSetup({
 
 function ChatScreen({
   mode,
+  perspective,
+  peerCardVisible,
+  peerFollowupVisible,
+  onOpenPeerCard,
   onBack,
   onOpenMusic,
 }: {
   mode: DeliveryMode;
+  perspective: ChatPerspective;
+  peerCardVisible: boolean;
+  peerFollowupVisible: boolean;
+  onOpenPeerCard: () => void;
   onBack: () => void;
   onOpenMusic: () => void;
 }) {
+  const peerView = perspective === 'peer';
+  const title = peerView ? '\u5979' : '\u4ed6';
+  const firstSide = peerView ? 'me' : 'other';
+  const secondSide = peerView ? 'other' : 'me';
+  const introSide = peerView ? 'me' : 'other';
+  const cardSide = peerView ? 'me' : 'other';
+  const firstAvatarTone = peerView ? 'dark' : 'dark';
+  const secondAvatarTone = peerView ? 'light' : 'light';
+  const cardAvatarTone = peerView ? 'dark' : 'dark';
+
+  const renderRow = ({
+    side,
+    tone,
+    children,
+    music = false,
+  }: {
+    side: 'me' | 'other';
+    tone: 'dark' | 'light';
+    children: React.ReactNode;
+    music?: boolean;
+  }) => {
+    const rowClass = `wechat-message-row ${side === 'me' ? 'wechat-message-row--me' : 'wechat-message-row--other'}${music ? ' wechat-message-row--music' : ''}`;
+    if (side === 'me') {
+      return (
+        <div className={rowClass}>
+          {children}
+          <Avatar tone={tone} />
+        </div>
+      );
+    }
+    return (
+      <div className={rowClass}>
+        <Avatar tone={tone} />
+        {children}
+      </div>
+    );
+  };
+
   return (
     <section className="wechat-chat">
       <WeChatStatusBar />
@@ -229,27 +359,52 @@ function ChatScreen({
         <button type="button" aria-label={'\u8fd4\u56de\u6a21\u5f0f\u8bbe\u7f6e'} onClick={onBack}>
           <ChevronLeft size={30} />
         </button>
-        <strong>{'\u4ed6'}</strong>
+        <strong>{title}</strong>
         <button type="button" aria-label={'\u66f4\u591a'}>
           <MoreHorizontal size={24} />
         </button>
       </header>
 
       <main className="wechat-chat__messages">
-        <div className="wechat-message-row wechat-message-row--other">
-          <Avatar tone="dark" />
-          <ChatBubble side="other">{'\u5230\u5bb6\u4e86\u5417\uff1f'}</ChatBubble>
-        </div>
-        <div className="wechat-message-row wechat-message-row--me">
-          <ChatBubble side="me">{'\u5230\u5bb6\u5566\uff5e'}</ChatBubble>
-          <Avatar tone="light" />
-        </div>
-        <div className="wechat-message-row wechat-message-row--other wechat-message-row--music">
-          <Avatar tone="dark" />
-          <button className="wechat-music-button" type="button" onClick={onOpenMusic}>
-            {mode === 'lyric' ? <QQMusicShareCard /> : <ShareCard song={demoSongInfo} lyric={demoLyricSegment} message={demoUserMessage} />}
-          </button>
-        </div>
+        {renderRow({
+          side: firstSide,
+          tone: firstAvatarTone,
+          children: <ChatBubble side={firstSide}>{'\u5230\u5bb6\u4e86\u5417\uff1f'}</ChatBubble>,
+        })}
+        {renderRow({
+          side: secondSide,
+          tone: secondAvatarTone,
+          children: <ChatBubble side={secondSide}>{'\u5230\u5bb6\u5566\uff5e'}</ChatBubble>,
+        })}
+        {renderRow({
+          side: cardSide,
+          tone: cardAvatarTone,
+          music: true,
+          children: (
+            <button className="wechat-music-button" type="button" onClick={onOpenMusic}>
+              {mode === 'lyric' ? <QQMusicShareCard /> : <ShareCard song={demoSongInfo} lyric={demoLyricSegment} message={demoUserMessage} />}
+            </button>
+          ),
+        })}
+        {renderRow({
+          side: introSide,
+          tone: 'dark',
+          children: <ChatBubble side={introSide}>{'\u6211\u53d1\u73b0\u4e00\u9996\u5f88\u597d\u542c\u7684\u6b4c'}</ChatBubble>,
+        })}
+        {peerView && peerCardVisible && renderRow({
+          side: 'other',
+          tone: 'light',
+          children: (
+            <button className="wechat-music-button" type="button" onClick={onOpenPeerCard}>
+              <ShareCard song={directCardSongInfo} lyric={directCardLyricSegment} message={directCardMessage} />
+            </button>
+          ),
+        })}
+        {peerView && peerFollowupVisible && renderRow({
+          side: 'other',
+          tone: 'light',
+          children: <ChatBubble side="other">{'\u54c8\u54c8\u54c8\u8fd9\u9996\u4e5f\u4e0d\u9519\u5662'}</ChatBubble>,
+        })}
       </main>
 
       <WeChatInputBar />

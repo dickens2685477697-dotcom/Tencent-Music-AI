@@ -11,6 +11,7 @@ interface ShareCardProps {
 
 export function ShareCard({ song, lyric, message }: ShareCardProps) {
   const displaySong = resolveSongInfo(song);
+  const lyricDisplayText = lyric.text.replace(/[ \u3000]+/g, '\n');
 
   // 徽章旁：优先显示用户留言，无留言时退回歌词预览
   const badgeText = message
@@ -68,7 +69,7 @@ export function ShareCard({ song, lyric, message }: ShareCardProps) {
             {/* 歌词行：大引号 + 歌词文本 */}
             <div className="ysc__lyric-row">
               <span className="ysc__q" aria-hidden>“</span>
-              <p className="ysc__lyric-text">{lyric.text}</p>
+              <p className="ysc__lyric-text">{lyricDisplayText}</p>
               <span className="ysc__q ysc__q--close" aria-hidden>”</span>
             </div>
 

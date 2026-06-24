@@ -29,6 +29,30 @@ const seedCards: YinxinCardData[] = [
     openCount: 1,
     createdAt: new Date('2026-06-24T16:38:00').getTime(),
   },
+  {
+    shareId: 'wechat_demo_hold_001',
+    candidateId: 'wechat_demo_gem',
+    song: {
+      songId: 'hold_001',
+      title: '喜欢你',
+      artist: '邓紫棋',
+      coverUrl: '/assets/covers/hold_001.jpg',
+      coverIndex: 0,
+      durationSeconds: 232,
+    },
+    selectedLyric: {
+      segmentId: 'hold_001_wechat_direct',
+      text: '喜欢妳\n那双眼动人',
+      startTime: 0,
+      endTime: 8,
+      emotionTags: ['心动'],
+    },
+    userMessage: '其实我也',
+    cardStyle: 'green',
+    relationship: 'lover',
+    openCount: 1,
+    createdAt: new Date('2026-06-24T16:41:00').getTime(),
+  },
   { shareId: 'sent_friend', candidateId: allCandidates[0].candidateId, song: allCandidates[0].song, selectedLyric: allCandidates[0].primaryLyric, userMessage: '最近的夜晚总让我想起你，愿你被温柔以待，平安喜乐。', cardStyle: 'midnight', relationship: 'friend', openCount: 5, createdAt: new Date('2026-06-20T20:30:00').getTime() },
   { shareId: 'sent_lover', candidateId: allCandidates[1].candidateId, song: allCandidates[1].song, selectedLyric: allCandidates[1].primaryLyric, userMessage: '有些想念不用说得太满，这首歌会替我慢慢告诉你。', cardStyle: 'green', relationship: 'lover', openCount: 2, createdAt: new Date('2026-06-15T19:20:00').getTime() },
   { shareId: 'sent_teacher', candidateId: allCandidates[2].candidateId, song: allCandidates[2].song, selectedLyric: allCandidates[2].primaryLyric, userMessage: '谢谢你曾经给我的鼓励，我一直都记得。', cardStyle: 'minimal', relationship: 'teacher', openCount: 12, createdAt: new Date('2026-06-10T10:10:00').getTime() },
@@ -59,7 +83,19 @@ export function saveYinxinCard(card: YinxinCardData) {
 
 export function getYinxinCard(shareId: string): YinxinCardData {
   const stored = readMap<YinxinCardData>(CARDS_KEY)[shareId];
-  if (stored) return stored;
+  if (stored) {
+    if (shareId === 'wechat_demo_hold_001') {
+      return {
+        ...stored,
+        selectedLyric: {
+          ...stored.selectedLyric,
+          text: '喜欢妳\n那双眼动人',
+        },
+        userMessage: '其实我也',
+      };
+    }
+    return stored;
+  }
   const seed = seedCards.find((card) => card.shareId === shareId);
   if (seed) return seed;
   const fallback = allCandidates[0];
