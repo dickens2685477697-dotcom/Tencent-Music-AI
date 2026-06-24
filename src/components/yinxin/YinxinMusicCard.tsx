@@ -1,4 +1,5 @@
 import type { CardStyle, SongInfo, LyricSegment, YinxinMessageType } from '../../types/yinxin';
+import { resolveSongInfo } from '../../data/songs/songCatalog';
 import { CoverArt } from './CoverArt';
 import { MockAudioPlayer } from './MockAudioPlayer';
 
@@ -23,20 +24,41 @@ export function YinxinMusicCard({
   interactive?: boolean;
   className?: string;
 }) {
-  const voicePlayerId = `voice-${song.songId}-${lyric.segmentId}`;
+  const displaySong = resolveSongInfo(song);
+  const voicePlayerId = `voice-${displaySong.songId}-${lyric.segmentId}`;
   const letterClassName = `music-letter music-letter--${style} ${hideMessageInLyric ? 'music-letter--concealed' : ''} ${className}`.trim();
 
   return (
     <article className={letterClassName}>
       <div className="music-letter__halo" />
-      <CoverArt index={song.coverIndex} src={song.coverUrl} className="music-letter__cover" />
+      {hideMessageInLyric ? null : (
+        <CoverArt index={displaySong.coverIndex} src={displaySong.coverUrl} className="music-letter__cover" />
+      )}
       <div className="music-letter__content">
-        <p className="music-letter__lyric">“{lyric.text}”</p>
-        <div className="music-letter__song">
-          <strong>{song.title}</strong>
-          <span>{song.artist}</span>
-        </div>
-        {interactive ? <MockAudioPlayer id={`${song.songId}-${lyric.segmentId}`} compact /> : null}
+        {hideMessageInLyric ? (
+          <div className="music-letter__concealed-wrap">
+            <span className="music-letter__concealed-badge">藏在歌词中</span>
+            <p className="music-letter__lyric">“{lyric.text}”</p>
+            <div className="music-letter__concealed-song">
+              <CoverArt index={displaySong.coverIndex} src={displaySong.coverUrl} className="music-letter__concealed-cover" />
+              <div className="music-letter__song">
+                <strong>{displaySong.title}</strong>
+                <span>{displaySong.artist}</span>
+              </div>
+            </div>
+            {interactive ? <MockAudioPlayer id={`${displaySong.songId}-${lyric.segmentId}`} compact /> : null}
+            <small className="music-letter__from">From 音信</small>
+          </div>
+        ) : (
+          <>
+            <p className="music-letter__lyric">“{lyric.text}”</p>
+            <div className="music-letter__song">
+              <strong>{displaySong.title}</strong>
+              <span>{displaySong.artist}</span>
+            </div>
+            {interactive ? <MockAudioPlayer id={`${displaySong.songId}-${lyric.segmentId}`} compact /> : null}
+          </>
+        )}
         {hideMessageInLyric ? null : messageType === 'voice' ? (
           <div className="music-letter__message music-letter__message--voice">
             <span>{voiceDuration} 秒语音留言</span>
@@ -57,7 +79,7 @@ export function YinxinMusicCard({
         ) : (
           <p className="music-letter__message">{message}</p>
         )}
-        <small className="music-letter__from">From 音信</small>
+        {hideMessageInLyric ? null : <small className="music-letter__from">From 音信</small>}
       </div>
     </article>
   );

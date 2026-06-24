@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { AppShell } from '../../components/layout/AppShell';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { CoverArt } from '../../components/yinxin/CoverArt';
+import { ShareCard } from '../../components/yinxin/ShareCard';
 import { Toast } from '../../components/yinxin/Toast';
 import { WireframeModal } from '../../components/yinxin/WireframeModal';
 import { copyShareLink, getYinxinCard } from '../../services/shareStore';
@@ -150,7 +151,9 @@ export function SharePreviewPage() {
             confirmLabel="确认分享"
           >
             <p>音信将以链接形式分享。任何收到并打开链接的人都可以回复。</p>
-            <div className="wire-share-preview">图片占位（分享卡片）</div>
+            <div className="wire-share-card-wrap">
+              <ShareCard song={card.song} lyric={card.selectedLyric} />
+            </div>
           </WireframeModal>
         )}
 

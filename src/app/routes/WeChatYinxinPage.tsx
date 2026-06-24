@@ -20,14 +20,29 @@ import {
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppShell } from '../../components/layout/AppShell';
+import songsData from '../../data/songs/songs.json';
 
 type DeliveryMode = 'lyric' | 'direct';
 type ScenarioView = 'setup' | 'chat' | 'player';
+type WechatDemoSong = {
+  songId: string;
+  title: string;
+  artist: string;
+  coverUrl: string;
+  lyrics: string[];
+};
 
 const modeLabels: Record<DeliveryMode, string> = {
   lyric: '藏在歌词中',
   direct: '不隐藏',
 };
+
+const wechatSongs = songsData as WechatDemoSong[];
+const currentSong = wechatSongs.find((song) => song.songId === 'demo_001') ?? wechatSongs[0];
+const currentSongTitle = currentSong?.title ?? '开不了口';
+const currentSongArtist = currentSong?.artist ?? '周杰伦';
+const currentSongCover = currentSong?.coverUrl ?? '/assets/covers/demo_001.jpg';
+const currentSongLyric = currentSong?.lyrics.find((line) => line.includes('开不了口')) ?? currentSong?.lyrics[0] ?? '没说出口的，都在这一句里';
 
 export function WeChatYinxinPage() {
   const navigate = useNavigate();
@@ -204,18 +219,17 @@ function QQMusicShareCard({ compact = false }: { compact?: boolean }) {
   return (
     <article className={`qq-share-card ${compact ? 'qq-share-card--compact' : ''}`}>
       <div className="qq-share-card__main">
-        <img src="/assets/wechat-demo/jay-cover.jpg" alt="" />
+        <img src={currentSongCover} alt={`${currentSongTitle}封面`} />
         <div className="qq-share-card__meta">
-          <strong>开不了口</strong>
-          <span>周杰伦</span>
+          <strong>{currentSongTitle}</strong>
+          <span>{currentSongArtist}</span>
         </div>
         <span className="qq-share-card__play">
-          <Play size={30} fill="currentColor" />
+          <Play className="qq-share-card__play-icon" size={20} fill="currentColor" />
         </span>
       </div>
       <div className="qq-share-card__brand">
-        <span className="qq-music-mark">♪</span>
-        <b>QQ音乐</b>
+        <img src="/assets/qqmusic-logo-1b43a7.png" alt="QQ音乐" />
       </div>
     </article>
   );
@@ -225,13 +239,13 @@ function YinxinDirectCard({ compact = false }: { compact?: boolean }) {
   return (
     <article className={`yinxin-chat-card ${compact ? 'yinxin-chat-card--compact' : ''}`}>
       <div className="yinxin-chat-card__cover">
-        <img src="/assets/wechat-demo/jay-cover.jpg" alt="" />
+        <img src={currentSongCover} alt={`${currentSongTitle}封面`} />
         <span>音</span>
       </div>
       <div className="yinxin-chat-card__content">
         <div>
-          <strong>音信 · 开不了口</strong>
-          <small>周杰伦</small>
+          <strong>音信 · {currentSongTitle}</strong>
+          <small>{currentSongArtist}</small>
         </div>
         <div className="yinxin-chat-card__wave" aria-hidden="true">
           {Array.from({ length: 12 }, (_, index) => (
@@ -267,7 +281,7 @@ function QQMusicPlayer({
       </header>
 
       <main className="qq-player__body">
-        <img className="qq-player__cover" src="/assets/wechat-demo/jay-cover.jpg" alt="开不了口专辑封面" />
+        <img className="qq-player__cover" src={currentSongCover} alt={`${currentSongTitle}专辑封面`} />
         <div className="qq-player__listen">
           <span className="qq-music-mark">♪</span>
           <span>QQ音乐</span>
@@ -276,8 +290,8 @@ function QQMusicPlayer({
 
         <section className="qq-player__song">
           <div>
-            <h1>开不了口</h1>
-            <p>周杰伦</p>
+            <h1>{currentSongTitle}</h1>
+            <p>{currentSongArtist}</p>
           </div>
           <div className="qq-player__stats">
             <span><ThumbsUp size={25} />1.8万</span>
@@ -294,7 +308,7 @@ function QQMusicPlayer({
         </div>
 
         <p className="qq-player__lyric">
-          {receiverOpening ? '没说出口的，都在这一句里' : '音乐播放中...'}
+          {receiverOpening ? currentSongLyric : '音乐播放中...'}
         </p>
 
         <div className="qq-player__controls">
