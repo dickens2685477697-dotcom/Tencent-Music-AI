@@ -97,7 +97,12 @@ export function HomePage() {
         {/* 我寄出的音信 */}
         <button className="sent-letters-entry" onClick={() => navigate('/yinxin/sent')}>
           <div className="sent-letters-entry__icon">
-            <Mail size={20} />
+            <img
+              src="/assets/qq-envelope/sent-letters-entry-icon.png"
+              alt=""
+              aria-hidden="true"
+              className="sent-letters-entry__icon-image"
+            />
           </div>
           <div className="sent-letters-entry__text">
             <strong>我寄出的音信</strong>

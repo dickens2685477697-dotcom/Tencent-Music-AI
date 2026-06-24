@@ -158,7 +158,11 @@ export function EditYinxinPage() {
             </div>
           </div>
           <div className="edit-music-card__player">
-            <MockAudioPlayer id={`${selectedCandidate.song.songId}-${selectedLyric.segmentId}`} compact />
+            <MockAudioPlayer
+              id={`${selectedCandidate.song.songId}-${selectedLyric.segmentId}`}
+              compact
+              durationSeconds={selectedCandidate.song.durationSeconds}
+            />
           </div>
         </div>
 

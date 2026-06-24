@@ -46,8 +46,9 @@
 /* 我寄出的音信 入口 */
 .sent-letters-entry { width: calc(100% - 40px); display: grid; grid-template-columns: 40px 1fr 16px; align-items: center; gap: 10px; margin: 12px 20px; padding: 16px 20px; border: 1px solid rgba(187,202,188,0.3); border-radius: 12px; text-align: left; background: #fff; cursor: pointer; color: #20262a; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
 .sent-letters-entry > span { display: none; }
-.sent-letters-entry__icon { width: 40px; height: 40px; border-radius: 8px; background: rgba(112,249,167,0.4); display: grid; place-items: center; color: #006D3D; flex: none; }
-.sent-letters-entry__text strong { display: block; font-size: 20px; font-weight: 500; color: #191C1F; }
+.sent-letters-entry__icon { width: 40px; height: 40px; border-radius: 8px; overflow: hidden; background: transparent; display: grid; place-items: center; color: #006D3D; flex: none; }
+.sent-letters-entry__icon-image { width: 100%; height: 100%; display: block; object-fit: cover; border-radius: inherit; }
+.sent-letters-entry__text strong { display: block; font-size: 18px; font-weight: 500; color: #191C1F; }
 .sent-letters-entry__text small { display: block; margin-top: 2px; font-size: 12px; color: #9AA0A6; }
 .sent-letters-entry__arrow { color: rgba(60,74,63,0.4); }
 
