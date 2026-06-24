@@ -75,6 +75,8 @@ const demoUserMessage =
 const lyricTriggerMs = 2600;
 const lyricNavigateMs = 3450;
 const directNavigateMs = 220;
+const heAvatarSrc =
+  '/@fs/C:/Users/Administrator/.cursor/projects/d-vibecoding-music/assets/c__Users_Administrator_AppData_Roaming_Cursor_User_workspaceStorage_d90546fdbbd4fe7434b338b59b4de4e0_images_4001e37f5ad1dd89dec233c84cb6c9a7-15223948-01e5-47c4-973c-d45d8e922a11.png';
 
 export function WeChatYinxinPage() {
   const navigate = useNavigate();
@@ -168,7 +170,7 @@ function ModeSetup({
       </header>
 
       <div className="wechat-setup__body">
-        <div className="wechat-setup__avatar">{'\u4ed6'}</div>
+        <img className="wechat-setup__avatar" src={heAvatarSrc} alt={'\u4ed6\u7684\u5934\u50cf'} />
         <h1>{'\u5448\u73b0\u65b9\u5f0f'}</h1>
         <div className="wechat-mode-grid" role="radiogroup" aria-label={'\u9009\u62e9\u97f3\u4fe1\u5448\u73b0\u65b9\u5f0f'}>
           <button
@@ -399,7 +401,10 @@ function ChatBubble({ side, children }: { side: 'me' | 'other'; children: string
 }
 
 function Avatar({ tone }: { tone: 'dark' | 'light' }) {
-  return <span className={`wechat-avatar wechat-avatar--${tone}`} />;
+  if (tone === 'dark') {
+    return <img className="wechat-avatar wechat-avatar--photo" src={heAvatarSrc} alt={'\u4ed6\u7684\u5934\u50cf'} />;
+  }
+  return <span className="wechat-avatar wechat-avatar--light" />;
 }
 
 function WeChatInputBar() {

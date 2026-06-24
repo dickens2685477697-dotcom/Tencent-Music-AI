@@ -1,4 +1,4 @@
-import { ArrowLeftRight, Heart, PenSquare, RefreshCw } from 'lucide-react';
+import { ArrowLeftRight, Heart, PenSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AppShell } from '../../components/layout/AppShell';
 import { PageHeader } from '../../components/layout/PageHeader';
@@ -25,20 +25,7 @@ export function CandidateListPage() {
     <AppShell light>
       <div className="page results-page">
         {/* Header：仅标题 + 返回，无操作按钮 */}
-          <PageHeader
-            title="音信"
-            backTo="/yinxin"
-            action={(
-              <button
-                type="button"
-                className="rematch-btn rematch-btn--header"
-                onClick={() => { dispatch({ type: 'REGENERATE' }); navigate('/yinxin/generating'); }}
-              >
-                <RefreshCw size={12} />
-                再次匹配
-              </button>
-            )}
-          />
+        <PageHeader title="音信" backTo="/yinxin" />
 
         {/* 标题区 */}
         <div className="results-hero">

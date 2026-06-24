@@ -2233,14 +2233,9 @@ textarea::placeholder { color: #929292; }
 .wechat-setup__avatar {
   width: 64px;
   height: 64px;
-  display: grid;
-  place-items: center;
   margin: 0 auto 14px;
-  color: #fff;
-  background: linear-gradient(145deg, #1b211d, #5a625c);
   border-radius: 8px;
-  font-size: 22px;
-  font-weight: 700;
+  object-fit: cover;
   box-shadow: 0 8px 22px rgba(0,0,0,.12);
 }
 .wechat-setup h1 {
@@ -2355,12 +2350,16 @@ textarea::placeholder { color: #929292; }
   width: 42px;
   height: 42px;
   border-radius: 7px;
+  object-fit: cover;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.22);
 }
 .wechat-avatar--dark {
   background:
     radial-gradient(circle at 50% 27%, #10100e 0 14px, transparent 15px),
     linear-gradient(180deg, #3d4b44, #121917);
+}
+.wechat-avatar--photo {
+  display: block;
 }
 .wechat-avatar--light {
   background:
