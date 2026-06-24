@@ -75,8 +75,8 @@ const demoUserMessage =
 const lyricTriggerMs = 2600;
 const lyricNavigateMs = 3450;
 const directNavigateMs = 220;
-const heAvatarSrc =
-  '/@fs/C:/Users/Administrator/.cursor/projects/d-vibecoding-music/assets/c__Users_Administrator_AppData_Roaming_Cursor_User_workspaceStorage_d90546fdbbd4fe7434b338b59b4de4e0_images_4001e37f5ad1dd89dec233c84cb6c9a7-15223948-01e5-47c4-973c-d45d8e922a11.png';
+const heAvatarSrc = '/assets/wechat-he-avatar.png';
+const meAvatarSrc = '/assets/wechat-me-avatar.png';
 
 export function WeChatYinxinPage() {
   const navigate = useNavigate();
@@ -404,7 +404,7 @@ function Avatar({ tone }: { tone: 'dark' | 'light' }) {
   if (tone === 'dark') {
     return <img className="wechat-avatar wechat-avatar--photo" src={heAvatarSrc} alt={'\u4ed6\u7684\u5934\u50cf'} />;
   }
-  return <span className="wechat-avatar wechat-avatar--light" />;
+  return <img className="wechat-avatar wechat-avatar--photo" src={meAvatarSrc} alt={'\u6211\u7684\u5934\u50cf'} />;
 }
 
 function WeChatInputBar() {
