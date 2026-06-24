@@ -40,6 +40,7 @@ export function GeneratingPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const [error, setError] = useState<'error' | 'empty'>();
+  const [matchProgress, setMatchProgress] = useState(0);
   // 轨道标签与上一页选择保持一致，避免出现固定文案与用户选择不对应。
   const orbitTags = [
     { label: relationshipLabels[draft.relationship], r: 108, dur: 14, delay: 0 },
@@ -51,14 +52,35 @@ export function GeneratingPage() {
   useEffect(() => {
     if (!draft.message.trim()) { navigate('/yinxin', { replace: true }); return; }
     setError(undefined);
+    setMatchProgress(0);
     const scenario = (params.get('mock') ?? 'success') as MockScenario;
+    let cancelled = false;
+    const progressTimer = window.setInterval(() => {
+      setMatchProgress((current) => {
+        if (current >= 95) return current;
+        const nextStep = current < 60 ? 4 : current < 85 ? 2 : 1;
+        return Math.min(95, current + nextStep);
+      });
+    }, 120);
+
     generateYinxinCandidates(draft, { scenario, generation })
       .then((candidates) => {
+        if (cancelled) return;
         if (!candidates.length) { setError('empty'); return; }
         dispatch({ type: 'SET_CANDIDATES', payload: candidates });
-        navigate('/yinxin/results', { replace: true });
+        setMatchProgress(100);
+        window.setTimeout(() => {
+          if (!cancelled) navigate('/yinxin/results', { replace: true });
+        }, 260);
       })
-      .catch(() => setError('error'));
+      .catch(() => {
+        if (!cancelled) setError('error');
+      });
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(progressTimer);
+    };
   }, [dispatch, draft, generation, navigate, params]);
 
   const retry = () => {
@@ -147,9 +169,9 @@ export function GeneratingPage() {
               </div>
               <div className="progress-row">
                 <div className="progress-bar">
-                  <span className="progress-fill" />
+                  <span className="progress-fill" style={{ width: `${matchProgress}%` }} />
                 </div>
-                <span className="progress-pct">43%</span>
+                <span className="progress-pct">{matchProgress}%</span>
               </div>
             </div>
 
