@@ -2,28 +2,53 @@ import { resolveSongInfo } from '../../data/songs/songCatalog';
 import type { LyricSegment, SongInfo } from '../../types/yinxin';
 import { CoverArt } from './CoverArt';
 
-export function ShareCard({ song, lyric }: { song: SongInfo; lyric: LyricSegment }) {
+interface ShareCardProps {
+  song: SongInfo;
+  lyric: LyricSegment;
+  /** 用户输入的留言，显示在音信徽章旁；不传时回退显示歌词预览 */
+  message?: string;
+}
+
+export function ShareCard({ song, lyric, message }: ShareCardProps) {
   const displaySong = resolveSongInfo(song);
-  const lyricPreview = lyric.text.length > 14 ? lyric.text.slice(0, 14) + '…' : lyric.text;
+
+  // 徽章旁：优先显示用户留言，无留言时退回歌词预览
+  const badgeText = message
+    ? (message.length > 16 ? message.slice(0, 16) + '…' : message)
+    : (lyric.text.length > 14 ? lyric.text.slice(0, 14) + '…' : lyric.text);
 
   return (
     <div className="ysc">
-      {/* 主体：Figma 导出背景图 */}
+      {/* 主体区：Figma 导出背景图 */}
       <div className="ysc__main">
         <div className="ysc__bg" aria-hidden />
         <div className="ysc__row">
-          {/* 左：专辑封面 */}
+
+          {/*
+           * 左：封面区 78×68
+           * 黑胶 SVG z=0（圆心 x=46.89，从封面右侧露出约 10px）
+           * 封面 z=1（绝对 left=0，遮住黑胶左侧）
+           */}
           <div className="ysc__cover-wrap">
-            <CoverArt
-              index={displaySong.coverIndex}
-              src={displaySong.coverUrl}
-              className="ysc__cover"
+            <img
+              src="/assets/share-card/cover-decoration.svg"
+              className="ysc__vinyl"
+              alt=""
+              aria-hidden
             />
+            <div className="ysc__cover-frame">
+              <CoverArt
+                index={displaySong.coverIndex}
+                src={displaySong.coverUrl}
+                className="ysc__cover"
+              />
+            </div>
           </div>
 
           {/* 右：歌词与歌曲信息 */}
           <div className="ysc__content">
-            {/* 品牌行：音信徽章 + 歌词预览 */}
+
+            {/* 品牌行：音信徽章 + 用户留言（Figma 设计中为用户话语） */}
             <div className="ysc__brand-row">
               <span className="ysc__badge">
                 <img
@@ -36,7 +61,7 @@ export function ShareCard({ song, lyric }: { song: SongInfo; lyric: LyricSegment
               </span>
               <div className="ysc__preview">
                 <span className="ysc__sep">·</span>
-                <span>{lyricPreview}</span>
+                <span>{badgeText}</span>
               </div>
             </div>
 
@@ -59,11 +84,12 @@ export function ShareCard({ song, lyric }: { song: SongInfo; lyric: LyricSegment
                 </svg>
               </button>
             </div>
+
           </div>
         </div>
       </div>
 
-      {/* 底部品牌条：Figma 导出品牌图 */}
+      {/* 底部品牌条：左对齐（同 QQ 音乐品牌条方式） */}
       <div className="ysc__foot">
         <img
           src="/assets/share-card/share-card-brand.png"

@@ -20,7 +20,9 @@ import {
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppShell } from '../../components/layout/AppShell';
+import { ShareCard } from '../../components/yinxin/ShareCard';
 import songsData from '../../data/songs/songs.json';
+import type { LyricSegment, SongInfo } from '../../types/yinxin';
 
 type DeliveryMode = 'lyric' | 'direct';
 type ScenarioView = 'setup' | 'chat' | 'player';
@@ -43,6 +45,24 @@ const currentSongTitle = currentSong?.title ?? '开不了口';
 const currentSongArtist = currentSong?.artist ?? '周杰伦';
 const currentSongCover = currentSong?.coverUrl ?? '/assets/covers/demo_001.jpg';
 const currentSongLyric = currentSong?.lyrics.find((line) => line.includes('开不了口')) ?? currentSong?.lyrics[0] ?? '没说出口的，都在这一句里';
+
+const demoSongInfo: SongInfo = {
+  songId: currentSong?.songId ?? 'demo_001',
+  title: currentSongTitle,
+  artist: currentSongArtist,
+  coverUrl: currentSongCover,
+  coverIndex: 0,
+};
+
+const demoLyricSegment: LyricSegment = {
+  segmentId: 'wechat_demo_lyric',
+  text: currentSongLyric,
+  startTime: 20,
+  endTime: 26,
+  emotionTags: ['思念', '离别'],
+};
+
+const demoUserMessage = '到家就好。其实那句没发出去的话，我放在这封音信里了。';
 
 export function WeChatYinxinPage() {
   const navigate = useNavigate();
@@ -158,7 +178,7 @@ function ModeSetup({
         <div className="wechat-setup-preview" aria-hidden="true">
           <ChatBubble side="other">到家了吗？</ChatBubble>
           <ChatBubble side="me">到家啦～</ChatBubble>
-          {mode === 'lyric' ? <QQMusicShareCard compact /> : <YinxinDirectCard compact />}
+          {mode === 'lyric' ? <QQMusicShareCard compact /> : <ShareCard song={demoSongInfo} lyric={demoLyricSegment} message={demoUserMessage} />}
         </div>
       </div>
 
@@ -205,7 +225,7 @@ function ChatScreen({
         <div className="wechat-message-row wechat-message-row--other wechat-message-row--music">
           <Avatar tone="dark" />
           <button className="wechat-music-button" type="button" onClick={onOpenMusic}>
-            {mode === 'lyric' ? <QQMusicShareCard /> : <YinxinDirectCard />}
+            {mode === 'lyric' ? <QQMusicShareCard /> : <ShareCard song={demoSongInfo} lyric={demoLyricSegment} message={demoUserMessage} />}
           </button>
         </div>
       </main>

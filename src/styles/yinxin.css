@@ -1298,7 +1298,11 @@ textarea::placeholder { color: #929292; }
 .share-heading p { margin-top: 6px; font-size: 13px; color: #7D8A83; }
 
 /* 主视觉容器 */
-.packing-scene { position: relative; height: 340px; margin: 16px 0; }
+.packing-scene {
+  position: relative;
+  height: 360px;
+  margin: 16px 0 8px;
+}
 
 /* 彩屑 */
 .confetti { position: absolute; border-radius: 3px; }
@@ -1309,27 +1313,149 @@ textarea::placeholder { color: #929292; }
 .cf5 { width: 14px; height: 6px; background: #c8f0dc; border-radius: 3px; bottom: 40%; left: 6%; transform: rotate(50deg); }
 .cf6 { width: 6px; height: 14px; background: #a3e4bc; border-radius: 3px; bottom: 38%; right: 8%; transform: rotate(-42deg); }
 
-/* 信封 */
-.envelope-wrap { position: absolute; left: 50%; bottom: 20px; width: 284px; height: 206px; transform: translateX(-50%); }
-.envelope-back { position: absolute; inset: 0; border-radius: 18px; background: linear-gradient(160deg, #b8ead0 0%, #c6eeda 40%, #d4f2e2 100%); box-shadow: 0 18px 50px rgba(33,200,121,.18); z-index: 1; }
-.envelope-back::before { content: ''; position: absolute; inset: 0; border-radius: 18px; background: linear-gradient(30deg, transparent 49.2%, rgba(180,240,210,.55) 50%, transparent 50.8%); }
-.envelope-front-left { position: absolute; left: 0; bottom: 0; width: 50%; height: 54%; background: linear-gradient(145deg, #ade3c6 0%, #c3edd6 100%); border-radius: 0 0 0 18px; clip-path: polygon(0 0, 100% 100%, 0 100%); z-index: 3; }
-.envelope-front-right { position: absolute; right: 0; bottom: 0; width: 50%; height: 54%; background: linear-gradient(215deg, #ade3c6 0%, #c3edd6 100%); border-radius: 0 0 18px 0; clip-path: polygon(0 100%, 100% 0, 100% 100%); z-index: 3; }
-.envelope-seal { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 4; width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #2ad48a, #1ec178); display: grid; place-items: center; color: #fff; box-shadow: 0 4px 14px rgba(33,200,121,.36); }
-.envelope-wave { position: absolute; right: 22px; bottom: 68px; color: rgba(33,200,121,.3); z-index: 2; }
+/* 信封（前后层可重叠，中间插入音乐卡） */
+.envelope-wrap {
+  position: absolute;
+  left: 50%;
+  bottom: 20px;
+  width: 284px;
+  height: 206px;
+  transform: translateX(-50%);
+}
+.envelope-back {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background: linear-gradient(160deg, #b8ead0 0%, #c6eeda 40%, #d4f2e2 100%);
+  box-shadow: 0 18px 50px rgba(33,200,121,.18);
+  z-index: 1;
+  overflow: hidden;
+}
+.envelope-back::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background:
+    linear-gradient(30deg, transparent 49.2%, rgba(180,240,210,.55) 50%, transparent 50.8%),
+    url('/assets/figma-envelope/envelope-composition-bg-f07594.png') center / cover no-repeat;
+  opacity: .5;
+}
+.envelope-pocket-shadow {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  top: 40px;
+  bottom: 26px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(42,107,73,.22), rgba(42,107,73,.08) 30%, rgba(42,107,73,0));
+  z-index: 2;
+  pointer-events: none;
+}
+.envelope-front-left {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 50%;
+  height: 54%;
+  background: linear-gradient(145deg, #ade3c6 0%, #c3edd6 100%);
+  border-radius: 0 0 0 18px;
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
+  z-index: 4;
+}
+.envelope-front-right {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 50%;
+  height: 54%;
+  background: linear-gradient(215deg, #ade3c6 0%, #c3edd6 100%);
+  border-radius: 0 0 18px 0;
+  clip-path: polygon(0 100%, 100% 0, 100% 100%);
+  z-index: 4;
+}
+.envelope-front-overlay {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 284px;
+  height: auto;
+  opacity: .28;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 5;
+}
+.envelope-seal { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 6; width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #2ad48a, #1ec178); display: grid; place-items: center; color: #fff; box-shadow: 0 4px 14px rgba(33,200,121,.36); }
+.envelope-wave { position: absolute; right: 22px; bottom: 68px; color: rgba(33,200,121,.3); z-index: 3; }
 
 /* 黑胶唱片 */
-.packing-vinyl { position: absolute; left: 50%; bottom: 108px; transform: translateX(-38%); width: 148px; height: 148px; border-radius: 50%; z-index: 2; background: repeating-radial-gradient(circle, #0f1210 0 5px, #1a1f1b 6px 8px, #0c0f0d 9px 11px); box-shadow: 0 12px 32px rgba(0,0,0,.38); }
+.packing-vinyl { position: absolute; left: 50%; bottom: 108px; transform: translateX(-34%) rotate(0deg); width: 148px; height: 148px; border-radius: 50%; z-index: 2; background: repeating-radial-gradient(circle, #0f1210 0 5px, #1a1f1b 6px 8px, #0c0f0d 9px 11px); box-shadow: 0 12px 32px rgba(0,0,0,.38); }
 .packing-vinyl::after { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 40px; height: 40px; border-radius: 50%; background: radial-gradient(circle, #1c6e42, #0c3820); border: 4px solid #0a2b18; }
 
-/* 音乐信息卡 */
-.packing-card { position: absolute; left: 50%; top: 22px; transform: translateX(-46%); z-index: 5; width: 232px; padding: 13px 14px 14px; background: #fff; border-radius: 14px; box-shadow: 0 12px 30px rgba(40,100,70,.14); display: grid; grid-template-columns: 72px 1fr; gap: 12px; }
+/* 音乐信息卡：夹在信封前后层之间 */
+.packing-card {
+  position: absolute;
+  left: 50%;
+  top: 18px;
+  transform: translateX(-50%) translateY(-72px) scale(.96);
+  z-index: 3;
+  width: 232px;
+  padding: 13px 14px 14px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(40,100,70,.14);
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 12px;
+  will-change: transform, opacity;
+}
 .packing-card__cover { width: 72px; height: 72px; border-radius: 9px; overflow: hidden; flex: none; }
 .packing-card__cover .cover-art { width: 72px; height: 72px; }
 .packing-card__info b { display: block; font-size: 15px; font-weight: 700; color: #20262a; }
 .packing-card__info small { display: block; margin-top: 3px; font-size: 11px; color: #9aa0a6; }
 .packing-card__lyric { margin-top: 8px; font-size: 12px; line-height: 1.55; color: #45504a; }
 .packing-card__lyric i { color: #b7d8c6; font-style: normal; font-family: "HarmonyOS Sans SC", sans-serif; font-size: 14px; }
+
+.packing-scene--packing .packing-card {
+  animation: pack-card-in 1.7s cubic-bezier(.2,.9,.15,1) forwards;
+}
+.packing-scene--packed .packing-card {
+  transform: translateX(-50%) translateY(58px) scale(.94);
+}
+.packing-scene--packing .packing-vinyl {
+  animation: pack-vinyl-spin 1.7s ease-out forwards;
+}
+.packing-scene--packed .packing-vinyl {
+  transform: translateX(-34%) rotate(18deg);
+}
+
+@keyframes pack-card-in {
+  0% {
+    transform: translateX(-50%) translateY(-72px) scale(.96);
+    opacity: 0;
+  }
+  24% {
+    transform: translateX(-50%) translateY(-42px) scale(1);
+    opacity: 1;
+  }
+  76% {
+    transform: translateX(-50%) translateY(62px) scale(.95);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50%) translateY(58px) scale(.94);
+    opacity: 1;
+  }
+}
+
+@keyframes pack-vinyl-spin {
+  0% {
+    transform: translateX(-40%) rotate(-22deg);
+  }
+  100% {
+    transform: translateX(-34%) rotate(18deg);
+  }
+}
 
 /* 打包进度 */
 .packing-status { margin: 0 26px; text-align: center; }
@@ -1524,19 +1650,19 @@ textarea::placeholder { color: #929292; }
 .wire-modal footer button { min-height: 42px; }
 .wire-share-preview { display: grid; place-items: center; min-height: 92px; margin-top: 14px; color: #9AA0A6; background: #F6FAF8; border: 1px dashed rgba(33,200,121,.26); border-radius: 14px; font-size: 12px; }
 
-/* ── 分享卡片（Figma 55-112 精确还原，240×99px）── */
+/* ── 音信专属卡（Figma 55-112 精确还原，240×100px）── */
 .ysc {
   width: 240px;
   border-radius: 3.6px;
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
-  font-family: "HarmonyOS Sans SC", sans-serif;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", sans-serif;
 }
 
-/* 主体区：88px 高，背景为模糊封面图 */
+/* 主体区：89px 高（89 + 11 = 100px 总高） */
 .ysc__main {
   position: relative;
-  height: 88px;
+  height: 89px;
   overflow: hidden;
 }
 
@@ -1547,26 +1673,49 @@ textarea::placeholder { color: #929292; }
   background: url('/assets/share-card/share-card-bg.png') center / cover no-repeat;
 }
 
-/* 内容行：水平排列，居中对齐 */
+/* 内容行：水平居中，gap 12px，两侧各留约 9px */
 .ysc__row {
   position: relative;
   z-index: 1;
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 12px;
   height: 100%;
-  padding: 10px 10px 10px 0;
 }
 
-/* 左侧封面容器：78×68 */
+/*
+ * 左侧封面区：78×68
+ * 黑胶 SVG 绝对定位于 (0,0)，圆心在 x=46.89
+ * 专辑封面 (68×68) 绝对定位于 (0,0)，z-index 高于黑胶
+ * → 黑胶圆从封面右侧（x=68~78）露出约 10px
+ */
 .ysc__cover-wrap {
+  position: relative;
   width: 78px;
   height: 68px;
   flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-left: 10px;
+}
+
+/* 黑胶装饰：z-index=0，在封面下层 */
+.ysc__vinyl {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 78px;
+  height: 68px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 封面图片框：68×68，绝对定位 left=0，z-index=1（压住黑胶左侧，右侧露出） */
+.ysc__cover-frame {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 68px;
+  height: 68px;
+  z-index: 1;
 }
 
 /* 专辑封面：68×68，2.5px 圆角，轻阴影 */
@@ -1575,7 +1724,7 @@ textarea::placeholder { color: #929292; }
   height: 68px !important;
   border-radius: 2.5px !important;
   box-shadow: 0.67px 0px 0.67px rgba(0, 0, 0, 0.25) !important;
-  flex: none;
+  display: block;
 }
 
 /* 右侧内容：约 133px 宽 */
@@ -1737,23 +1886,25 @@ textarea::placeholder { color: #929292; }
   cursor: pointer;
 }
 
-/* 底部品牌条：11px 高，Figma 导出品牌图 */
+/* 底部品牌条：11px 高，左对齐（同 QQ 音乐品牌条方式） */
 .ysc__foot {
   height: 11px;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  padding: 0 6px;
-  background: #fff;
-  border-top: 0.5px solid rgba(33, 200, 121, 0.12);
+  justify-content: flex-start;
+  padding: 0 8px;
+  background: transparent;
+  border-top: none;
   overflow: hidden;
 }
 
+/* 品牌图：高度 9.16px（与 Figma 原始尺寸匹配） */
 .ysc__brand-img {
   height: 7px;
   width: auto;
   object-fit: contain;
   display: block;
+  margin-top: 0.5px;
 }
 
 /* 分享弹窗内卡片居中展示 */

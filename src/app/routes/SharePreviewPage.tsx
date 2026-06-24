@@ -41,7 +41,7 @@ export function SharePreviewPage() {
         </div>
 
         {/* 主视觉：信封 + 黑胶 + 音乐信息卡 + 彩屑 */}
-        <div className="packing-scene">
+        <div className={`packing-scene ${packed ? 'packing-scene--packed' : 'packing-scene--packing'}`}>
           {/* 彩屑 */}
           <span className="confetti cf1" />
           <span className="confetti cf2" />
@@ -53,8 +53,28 @@ export function SharePreviewPage() {
           {/* 信封 */}
           <div className="envelope-wrap">
             <div className="envelope-back" />
+            <div className="envelope-pocket-shadow" />
+            {/* 音乐信息卡：放在信封前后层之间，形成插入效果 */}
+            <div className="packing-card">
+              <div className="packing-card__cover">
+                <CoverArt index={card.song.coverIndex} src={card.song.coverUrl} className="cover-art" />
+              </div>
+              <div className="packing-card__info">
+                <b>{card.song.title}</b>
+                <small>{card.song.artist} · {card.song.album}</small>
+                <p className="packing-card__lyric">
+                  <i>"</i>{card.selectedLyric.text}<i>"</i>
+                </p>
+              </div>
+            </div>
             <div className="envelope-front-left" />
             <div className="envelope-front-right" />
+            <img
+              className="envelope-front-overlay"
+              src="/assets/figma-envelope/envelope-intersect-18e725.png"
+              alt=""
+              aria-hidden
+            />
             <span className="envelope-wave" aria-hidden>
               <svg width="52" height="24" viewBox="0 0 52 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
                 <path d="M2 12c4-8 8-8 12 0s8 8 12 0 8-8 12 0s8 8 12 0" />
@@ -69,20 +89,6 @@ export function SharePreviewPage() {
 
           {/* 黑胶唱片 */}
           <div className="packing-vinyl" />
-
-          {/* 音乐信息卡 */}
-          <div className="packing-card">
-            <div className="packing-card__cover">
-              <CoverArt index={card.song.coverIndex} src={card.song.coverUrl} className="cover-art" />
-            </div>
-            <div className="packing-card__info">
-              <b>{card.song.title}</b>
-              <small>{card.song.artist} · {card.song.album}</small>
-              <p className="packing-card__lyric">
-                <i>"</i>{card.selectedLyric.text}<i>"</i>
-              </p>
-            </div>
-          </div>
         </div>
 
         {/* 进度 / 打包完成后的分享操作 */}
@@ -152,7 +158,7 @@ export function SharePreviewPage() {
           >
             <p>音信将以链接形式分享。任何收到并打开链接的人都可以回复。</p>
             <div className="wire-share-card-wrap">
-              <ShareCard song={card.song} lyric={card.selectedLyric} />
+              <ShareCard song={card.song} lyric={card.selectedLyric} message={card.userMessage} />
             </div>
           </WireframeModal>
         )}
